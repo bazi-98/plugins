@@ -55,7 +55,7 @@ function decodeImage(b64Image)
 end
 
 
--- Dekleration
+-- Deklaration
 baseUrl = "https://www.horoskopbox.de/tageshoroskop/horoskop-heute-"
 html = ".html"
 tmpPath = "/tmp/horoskop"
