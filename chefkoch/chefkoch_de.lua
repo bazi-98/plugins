@@ -172,7 +172,8 @@ function fill_playlist(id) --- > begin playlist
  				for  item in data:gmatch('<article% class.-</article>') do
 					local link,title  = item:match('<a href="(.-)".-title="(.-)"') 
 					seite = 'http://www.chefkoch.de' .. link
-					if seite and title then
+					local icon  = item:match('image button.-(icon)"') -- nur Beiträge mit Icon haben auch Videos
+					if seite and title and icon then
 						add_stream( conv_str(title), seite, conv_str(title))
 					end
 				end
