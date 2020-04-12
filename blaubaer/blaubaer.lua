@@ -1,6 +1,6 @@
 --[[
 	Käpt'n Blaubär(light)
-	Vers.: 0.2
+	Vers.: 0.3
 	Copyright (C) 2020, bazi98
 
         App Description:
@@ -99,15 +99,6 @@ function conv_str(_string)
 	return _string
 end
 
-function url2_str(_string) -- anhand der Länge der Streamadresse die Url mit 960x540 px auswaehlen
-	if _string == nil then return _string end
-       _string = string.gsub(_string,'//wdradaptiv.-/i/medp/ondemand/weltweit/fsk0/%d+/%d+/,%d+_%d+,%d+_%d+,%.mp4%.csmil/','index_1_av.m3u8');
-       _string = string.gsub(_string,'//wdradaptiv.-/i/medp/ondemand/weltweit/fsk0/%d+/%d+/,%d+_%d+,%d+_%d+,%d+_%d+,%d+_%d+,%d+_%d+,%.mp4%.csmil/','index_2_av.m3u8');
-       _string = string.gsub(_string,'//wdradaptiv.-/i/medp/ondemand/weltweit/fsk0/%d+/%d+/%,%d+_%d+%,%d+_%d+%,%d+_%d+%,%d+_%d+%,%d+_%d+%,%d+_%d+%,%.mp4%.csmil/','index_2_av.m3u8');
-       _string = string.gsub(_string,'//wdradaptiv.-/i/medp/ondemand/weltweit/fsk0/%d+/%d+/,%d+_%d+,%d+_%d+,%d+_%d+,%d+_%d+,%.mp4%.csmil/','index_2_av.m3u8');
- 	return _string
-end
-
 function fill_playlist() 
 
 --beginn of playlist
@@ -153,27 +144,36 @@ function select_playitem()
       end
 
 	local js_data = getdata(url,nil)
-	local url_data = js_data:match('"videoURL":"(//.-)master.m3u8')
-	blaubaer_url = "https:" .. url_data
-	m3u8 = url2_str(url_data)
+	video_url1 = js_data:match('mediaResource.-{"videoURL":"(//.-%m3u8)"')
 
-	local title = js_data:match('"trackerClipTitle":"(.-)",')
+	video_url2 = getdata("http:"..video_url1,nil)
+	video_url = video_url2:match('RESOLUTION=1280.-(http.-m3u8)')
+	if video_url == nil then
+		video_url = video_url2:match('RESOLUTION=960.-(http.-m3u8)')
+	end
+	if video_url == nil then
+		video_url = video_url2:match('RESOLUTION=512.-(http.-m3u8)')
+	end
+
+	local epg1 = js_data:match('<meta name="twitter:description" content="(.-)">')
+	if epg1 == nil then
+		epg1 = p[pmid].from
+	end
+
+	local titel = js_data:match('trackerClipTitle":"(.-)",')
 	if title == nil then
 		title = p[pmid].title
 	end
 
-	if blaubaer_url then
-              url = blaubaer_url .. m3u8
-	vPlay:PlayFile("WDR",url,conv_str(title),url);
+	if video_url then
+	        vPlay:PlayFile("WDR",video_url ,conv_str(titel) );
 	else
-		print("Video URL not  found")
+		print("Video URL not found")
 	end
 
    end
   until false
 end
-
-
 
 --Main
 init()
