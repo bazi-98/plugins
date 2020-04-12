@@ -1,7 +1,7 @@
 --[[
 	arte concert
-	Vers.: 1.5.4 vom 09.12.2019
-	Copyright (C) 2016-2019, bazi98
+	Vers.: 1.5.5 vom 09.04.2020
+	Copyright (C) 2016-2020, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
         Addon Description:
@@ -88,11 +88,16 @@ local subs = {
 {'OPE', 'Opera'},
 {'ADS', 'Performance'}
 }
---- http://www.arte.tv/hbbtvv2/services/web/index.php/EMAC/teasers/subcategory/AJO/de -- alte Abfrageadresse via hbbtv
---- https://www.arte.tv/guide/api/emac/v3/de/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=MUA&page=1&limit=100 -- aktuelle Abfrageadresse
---- http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/mostViewed/page/1/limit/100/de
---- https://www.arte.tv/guide/api/api/zones/de/web/videos_subcategory_MUA/?page=1&limit=100
---- https://www.arte.tv/guide/api/emac/v3/de/web/pages/MOST_VIEWED?category=ARS&subcategories=MUA
+
+--[[
+     Die Abfrage ist durch arte auf 100 Sendungen begrenzt
+     La requête est limitée à 100 éléments par arte
+     The query is limited to 100 items by arte
+     La consulta está limitada a 100 artículos por arte
+     Zapytanie jest ograniczone do 100 pozycji według arte
+     La query è limitata a 100 articoli per arte
+]]
+limit = "100"
 
 function datetotime(s) -- > for example 23.11.2016
     local xday, xmonth, xyear, xhour, xmin, xsec = s:match("(%d+).(%d+).(%d+) (%d+):(%d+):(%d+) ")
@@ -124,7 +129,6 @@ function getdata(Url,outputfile)
 	if Curl == nil then
 		Curl = curl.new()
 	end
---	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (Linux mips; U;HbbTV/1.1.1 (+RTSP;DMM;Dreambox;0.1a;1.0;) CE-HTML/1.0; en) AppleWebKit/535.19 no/Volksbox QtWebkit/2.2",followRedir=true,o=outputfile }
 	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.77 Large Screen Safari/534.24 GoogleTV/000000",followRedir=true,o=outputfile }
 	if ret == CURL.OK then
 		return data
@@ -256,7 +260,7 @@ function conv_str(_string)
 	_string = string.gsub(_string,'u2018','‘');
 	_string = string.gsub(_string,'u2013','–');
 	_string = string.gsub(_string,'u2026','…');
-	_string = string.gsub(_string,'u00bf',''); -- ¿
+	_string = string.gsub(_string,'u00bf','¿');
 	_string = string.gsub(_string,'u00bb','»');
 	_string = string.gsub(_string,'u00ab','«');
 	_string = string.gsub(_string,'u00f8','ø');
@@ -271,11 +275,11 @@ function fill_playlist(id)
 		if v[1] == id then
 			sm:hide()
 			nameid = v[2]	
-			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=100',nil) -- Version neu
---			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/EMAC/teasers/subcategory/' .. id .. '/' .. language ,nil) -- Version Old
+			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit ,nil) -- Version default
+--			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternative 
 				if data then
-				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version neu
---				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version Old
+				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version default
+--				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version alternative
 					if title then
 						add_stream( conv_str(title), page , conv_str(teaser) ) 
 				        end
@@ -356,8 +360,8 @@ function select_playitem()
 	vPlay  =  video.new()
       end
 
-	if page then --- https://api.arte.tv/api/player/v1/config/de/088439-000-A?lifeCycle=1
-		local js_page = getdata('https://api.arte.tv/api/player/v1/config/'.. language .. '/'.. page .. '?lifeCycle=1',nil) -- apicall
+	if page then
+		local js_page = getdata('https://api.arte.tv/api/player/v1/config/'.. language .. '/'.. page .. '?lifeCycle=1',nil)
                 if js_page ~= nil then
 			local jnTab = json:decode(js_page)
 			local video_url = nil
