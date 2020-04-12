@@ -42,7 +42,7 @@ local posix	= require "posix"
 -- Auswahl
 local subs = {
 {'video/6,507,0', 'Krasse Kost'}, 
-{'video/6,329,0', 'Einfach lecker'}, 
+--{'video/6,329,0', 'Einfach lecker'}, 
 {'video/6,330,0', 'Hackn Roll'},
 {'video/6,459,0', 'Frühlingsküche'}, 
 {'video/6,472,0', 'Sommerküche'}, 
