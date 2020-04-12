@@ -1,7 +1,7 @@
 --[[
 	Käpt'n Blaubär(light)
-	Vers.: 0.1
-	Copyright (C) 2018, bazi98
+	Vers.: 0.2
+	Copyright (C) 2020, bazi98
 
         App Description:
         The program evaluates Käpt'n Blaubär-Videos from the WDR mediathek and provides 
@@ -111,6 +111,7 @@ end
 function fill_playlist() 
 
 --beginn of playlist
+				add_stream("Die 3 Bärchen und der blöde Wolf", "http://deviceids-medp.wdr.de/ondemand/164/1643276.js", "http://deviceids-medp.wdr.de/ondemand/164/1643276.js")
 	local data = getdata('https://www.wdrmaus.de/_export/videositemap.php5',nil) 
 	if data then
 		for  item in data:gmatch('<url>(.-)</url>')  do
