@@ -179,7 +179,9 @@ function conv_url(_string)
 	if _string == nil then return _string end
        _string = string.gsub(_string,'\\','');
 		if qual < 2 then -- = HD
-				_string = string.gsub(_string,'master.m3u8','index_1_av.m3u8');
+--				_string = string.gsub(_string,'master.m3u8','index_1_av.m3u8');
+				_string = string.gsub(_string,'master.m3u8','master.m3u8'); -- hardcore fix for https://artehlsevent03-i.akamaihd.net/hls/live/252717/channel03/master.m3u8 ecta
+
 		elseif qual > 2 then -- = qual = 3 = SD
 				_string = string.gsub(_string,'master.m3u8','index_2_av.m3u8');
 				_string = string.gsub(_string,'2200_','800_');
