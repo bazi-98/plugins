@@ -1,39 +1,37 @@
 --[[
 	Pokémon TV(light)
-	Vers.: 0.1
+	Vers.: 0.2
+
 	Copyright (C) 2020, fritz
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
         Addon Description:
-        The addon evaluates free Videos from the "The Pokémon Company International"  
+        The addon evaluates free Videos from the "The Pokémon Company International"
         Website and provides the videos for playing with the neutrino media player on.
 
-        This addon is not endorsed, certified or otherwise approved in any 
+        This addon is not endorsed, certified or otherwise approved in any
         way by "The Pokémon Company International".
 
-        The plugin respects The Pokémon Company's General Terms and Conditions of Use, 
-        which prohibits the publishing or making publicly available of any software, 
-        app or similar which allows the livestream / videos to be fully or partially 
+        The plugin respects The Pokémon Company's General Terms and Conditions of Use,
+        which prohibits the publishing or making publicly available of any software,
+        app or similar which allows the livestream / videos to be fully or partially
         definitely and permanently downloaded.
 
         The copyright (C) for the linked videos, descriptive texts and for the logo
         are owned by "The Pokémon Company International" or the respective owners!
 
 	License: GPL
-
-	This program is free software; you can redistribute it and/or modify it under 
-        the terms of the GNU General Public License as published by the Free Software 
+	This program is free software; you can redistribute it and/or modify it under
+        the terms of the GNU General Public License as published by the Free Software
         Foundation; either version 2 of the License, or (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	General Public License for more details.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY 
+        WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+        PARTICULAR PURPOSE.  
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+        See the GNU General Public License for more details. You should have received a 
+        copy of the GNU General Public License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.
 ]]
 
 
@@ -69,6 +67,13 @@ function getdata(Url,outputfile)
 	else
 		return nil
 	end
+end
+
+-- datestring in Umlaute wandeln
+function date_str(_string)
+	if _string == nil then return _string end
+	_string = string.gsub(_string,"ganze Sendung","Sendung");
+	return _string
 end
 
 -- UTF8 in Umlaute wandeln
@@ -144,7 +149,7 @@ end
 
 -- Duration
 function sec_to_min(_string)
-	local seconds = tonumber(_string/1000) -- Api liefert Zeit in msec deshalb /1000
+	local seconds = tonumber(_string/1000) -- the Api therefore provides the time in msec / 1000
 		if seconds <= 0 then
 		return "00:00:00";
 	else
@@ -153,25 +158,25 @@ function sec_to_min(_string)
 		secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
 --		return mins..":"..secs  -- Min:Sec
 		return hours..":"..mins..":"..secs -- Sdt:Min:Sec
---		return "ca. " ..mins.. " Min. " -- es werden nur Minuten angezeigt
+--		return "ca. " ..mins.. " Min. " -- only minutes are displayed
 	end
 end
 
 function fill_playlist() 
-
---beginn pokemon.total
-	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/de/',nil) 
+	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/de/',nil) -- for Films with German as sound option = default
+--	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/fr/',nil) -- for Films with French as sound option
+--	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/uk/',nil) -- for Films with English as sound option
 	if data then
 		for  item in data:gmatch('{"rating(.-)m3u8"')  do
-			local title = item:match('"title":"(.-)",') -- Sendungstitel
-			local description = item:match('"description":"(.-)",') -- Sendungsbeschreibung
+			local title = item:match('"title":"(.-)",') -- Program title
+			local description = item:match('"description":"(.-)",') -- Consignment description
 			local url = item:match('"id":"(.-)",') -- Link
 			if title then
 				add_stream(title,"https://production-ps.lvp.llnw.net/r/PlaylistService/media/" .. url .."/getMobilePlaylistByMediaId",conv_str(description) )
 			end
             end
-	end --pokemon.total
-end --- > end of playlist
+	end
+end
 
 -- epg-Fenster
 local epg = ""
