@@ -34,6 +34,18 @@
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.
 ]]
 
+--[[
+    Sprachversion / version linguistique / Language version
+    Mit der Auswahl der Sprachoptionen wird die Sprache des Video und der Texte festgelegt.
+    Avec le choix des options de langue langue de la vidéo et le texte du message est défini.
+    With the choice of language language language options of the video and message text is set.
+
+    langue = "de" -- > deutsch
+    langue = "fr" -- > français
+    langue = "uk" -- > english
+]]
+
+langue = "de" -- default = "de"
 
 --Objekte
 function script_path()
@@ -69,6 +81,13 @@ function getdata(Url,outputfile)
 	end
 end
 
+-- datestring in Umlaute wandeln
+function date_str(_string)
+	if _string == nil then return _string end
+	_string = string.gsub(_string,"ganze Sendung","Sendung");
+	return _string
+end
+
 -- UTF8 in Umlaute wandeln
 function conv_str(_string)
 	if _string == nil then return _string end
@@ -88,17 +107,6 @@ function conv_str(_string)
 	_string = string.gsub(_string,"&gt;",">");
 	_string = string.gsub(_string,"&quot;","");
 	_string = string.gsub(_string,"&apos;","'");
-	_string = string.gsub(_string,"&#x00c4","Ä");
-	_string = string.gsub(_string,"&#x00e4","ä");
-	_string = string.gsub(_string,"&#x00d6","Ö");
-	_string = string.gsub(_string,"&#x00f6","ö");
-	_string = string.gsub(_string,"&#x00dc","Ü");
-	_string = string.gsub(_string,"&#x00fc","ü");
-	_string = string.gsub(_string,"&#x00df","ß"); 
-	_string = string.gsub(_string,"u00df","ß"); 
-	_string = string.gsub(_string,"&#039","'");
-	_string = string.gsub(_string,"&#261","ą");
-	_string = string.gsub(_string,";","");
 	_string = string.gsub(_string,"<.->","");
 	return _string
 end
@@ -156,9 +164,7 @@ function sec_to_min(_string)
 end
 
 function fill_playlist() 
-	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/de/',nil) -- for Films with German as sound option = default
---	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/fr/',nil) -- for Films with French as sound option
---	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/uk/',nil) -- for Films with English as sound option
+	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/' .. langue .. '/',nil)
 	if data then
 		for  item in data:gmatch('{"rating(.-)m3u8"')  do
 			local title = item:match('"title":"(.-)",') -- Program title
