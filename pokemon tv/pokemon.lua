@@ -81,13 +81,6 @@ function getdata(Url,outputfile)
 	end
 end
 
--- datestring in Umlaute wandeln
-function date_str(_string)
-	if _string == nil then return _string end
-	_string = string.gsub(_string,"ganze Sendung","Sendung");
-	return _string
-end
-
 -- UTF8 in Umlaute wandeln
 function conv_str(_string)
 	if _string == nil then return _string end
