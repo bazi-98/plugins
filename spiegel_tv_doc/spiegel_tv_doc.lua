@@ -1,6 +1,6 @@
 --[[
 	SpiegelTV-App
-	Vers.: 0.4
+	Vers.: 0.5
 	Copyright (C) 2020, fritz
 
 	License: GPL
@@ -78,16 +78,23 @@ function conv_str(_string)
 	_string = string.gsub(_string,"&quot;","");
 	_string = string.gsub(_string,"&apos;","'");
 	_string = string.gsub(_string,"&#x00c4","Ä");
+	_string = string.gsub(_string,"u00c4","Ä");
 	_string = string.gsub(_string,"&#x00e4","ä");
+	_string = string.gsub(_string,"u00e4","ä");
 	_string = string.gsub(_string,"&#x00d6","Ö");
+	_string = string.gsub(_string,"u00d6","Ö");
 	_string = string.gsub(_string,"&#x00f6","ö");
+	_string = string.gsub(_string,"u00f6","ö");
 	_string = string.gsub(_string,"&#x00dc","Ü");
+	_string = string.gsub(_string,"u00dc","Ü");
 	_string = string.gsub(_string,"&#x00fc","ü");
+	_string = string.gsub(_string,"u00fc","ü");
 	_string = string.gsub(_string,"&#x00df","ß");
 	_string = string.gsub(_string,"u00df","ß");
 	_string = string.gsub(_string,"&#039","'");
 	_string = string.gsub(_string,'&#34','"');
 	_string = string.gsub(_string,"&#261","ą");
+	_string = string.gsub(_string,"u2013","–");
 	_string = string.gsub(_string,";","");
 	_string = string.gsub(_string,"SPIEGEL TV: ","");
 	_string = string.gsub(_string,"%s+%s+", "")
