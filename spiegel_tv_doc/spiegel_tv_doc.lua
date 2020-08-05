@@ -1,6 +1,6 @@
 --[[
 	SpiegelTV-App
-	Vers.: 0.3
+	Vers.: 0.4
 	Copyright (C) 2020, fritz
 
 	License: GPL
@@ -160,7 +160,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 	if #epg < 1 then return end
 	local dx = 800;
 	local dy = 400;
-	local x = 0;
+	local x = 240;
 	local y = 0;
 
 	local hw = n:getRenderWidth(FONT['MENU'],title) + 20
@@ -225,14 +225,24 @@ function select_playitem()
 	if title == nil then
 		title = p[pmid].title
 	end
-	local js_data = getdata(url,nil) -- z.B. https://www.spiegel.de/video/spiegel-tv-ueber-auto-poser-und-ps-protze-video-99031464.html
+	local js_data = getdata(url,nil)
 	local url1 = js_data:match('mediaId&.-&.-;(.-)&')
-	local url2 = "https://cdn.jwplayer.com/manifests/" ..url1 .. ".m3u8"
-	local url3 = getdata(url2,nil)
-	local url = url3:match('x720.-(http.-)\n')
+	local js_url = getdata('https://vcdn01.spiegel.de/v2/media/' .. url1,nil)
+	local url = js_url:match('180p.-"file":"(https:.-videos.-mp4)"')           -- z.B. https://vcdn02.spiegel.de/videos/4Cv8bxgU-b8Tmknhy.mp4
+	if url == nil then
+		url = js_url:match('720p.-"file":"(https.-videos.-mp4)"') 
+	end
+	if url == nil then
+		url = js_url:match('"file":"(https.-videos.-mp4)"') 
+	end
+
+	local description = js_url:match('"description":"(.-)"') 
+	if description == nil then
+		description = p[pmid].description
+	end
 
 	if url then
-		epg = p[pmid].title .. "\n\n" .. p[pmid].description .. "\n\n" ..p[pmid].from
+		epg = p[pmid].title .. "\n\n" .. conv_str(description) .. "\n\n" ..p[pmid].from
 		vPlay:setInfoFunc("epgInfo")
 --		vPlay:PlayFile("SpiegelTV",url,p[pmid].title,url); -- with url, only for testing
 		vPlay:PlayFile("SpiegelTV",url,p[pmid].title);
