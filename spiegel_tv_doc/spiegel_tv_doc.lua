@@ -1,6 +1,6 @@
 --[[
 	SpiegelTV-App
-	Vers.: 0.5
+	Vers.: 0.4
 	Copyright (C) 2020, fritz
 
 	License: GPL
@@ -94,9 +94,27 @@ function conv_str(_string)
 	_string = string.gsub(_string,"&#039","'");
 	_string = string.gsub(_string,'&#34','"');
 	_string = string.gsub(_string,"&#261","ą");
-	_string = string.gsub(_string,"u2013","–");
 	_string = string.gsub(_string,";","");
 	_string = string.gsub(_string,"SPIEGEL TV: ","");
+	_string = string.gsub(_string,'u201e','„');
+	_string = string.gsub(_string,'u201c','“');
+	_string = string.gsub(_string,'u00d8','ø');
+	_string = string.gsub(_string,'u00a0',' ');
+	_string = string.gsub(_string,'u0142','ł');
+	_string = string.gsub(_string,'u00b0','°');
+	_string = string.gsub(_string,'u0302','̂ ');
+	_string = string.gsub(_string,'u031e','̞');
+	_string = string.gsub(_string,'u0301','́');
+	_string = string.gsub(_string,'u201d','́');
+	_string = string.gsub(_string,'u2018','‘');
+	_string = string.gsub(_string,'u2013','–');
+	_string = string.gsub(_string,'u2026','…');
+	_string = string.gsub(_string,'u00bf',''); -- ¿
+	_string = string.gsub(_string,'u00bb','»');
+	_string = string.gsub(_string,'u00ab','«');
+	_string = string.gsub(_string,'u00f8','ø');
+	_string = string.gsub(_string,'u2026','…');
+	_string = string.gsub(_string,'u00aa','ª');
 	_string = string.gsub(_string,"%s+%s+", "")
 	return _string
 end
@@ -198,7 +216,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 		elseif msg == RC.down or msg == RC.page_down then
 			ct:scroll{dir="down"};
 		end
-	until msg == RC.ok or msg == RC.home
+	until msg == RC.ok or msg == RC.home or msg == RC.info
 	wh:hide()
 end
 
@@ -234,14 +252,26 @@ function select_playitem()
 	end
 	local js_data = getdata(url,nil)
 	local url1 = js_data:match('mediaId&.-&.-;(.-)&')
+
+	if url1 == nil then
+		print("Video URL not  found") 
+	end
+
 	local js_url = getdata('https://vcdn01.spiegel.de/v2/media/' .. url1,nil)
-	local url = js_url:match('180p.-"file":"(https:.-videos.-mp4)"')           -- z.B. https://vcdn02.spiegel.de/videos/4Cv8bxgU-b8Tmknhy.mp4
+
+	if js_url == nil then -- hardcore fix, kann gelöscht werden wenn der Beitrag vom 14 Jul 2020 aus dem spiegel-tv/index.rss rausgefallen ist
+		js_url = getdata('https://vcdn01.spiegel.de/v2/media/253bWLRR',nil)
+	end
+
+	local url = js_url:match('180p.-"file":"(https:.-videos.-mp4)"') 
+
 	if url == nil then
 		url = js_url:match('720p.-"file":"(https.-videos.-mp4)"') 
 	end
 	if url == nil then
 		url = js_url:match('"file":"(https.-videos.-mp4)"') 
 	end
+
 
 	local description = js_url:match('"description":"(.-)"') 
 	if description == nil then
