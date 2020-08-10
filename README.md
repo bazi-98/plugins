@@ -1,1 +1,1 @@
-simple LUA-Plugins for neutrino-mp
+simple Plugins for neutrino-mp
