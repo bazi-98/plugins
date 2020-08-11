@@ -20,7 +20,7 @@
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
-        Copyright (C) for the used api by Alex Segler (http://www.radio-browser.info), licensed under the terms of the GPL
+        Copyright (C) for the used api by http://www.radio-browser.info, licensed under the terms of the GPL
         Copyright (C) for the linked radioservises by the respective owners!
         Copyright (C) for the Base64 encoder/decoder function by Alex Kloss <alexthkloss@web.de>, licensed under the terms of the LGPL
 ]]
@@ -124,7 +124,7 @@ function fill_playlist(id)
                 url = 'https://de1.api.radio-browser.info/xml/url/' .. seite
                 title = conv_str(title)
                 genre = conv_str(genre)
-                      if title and (codec == "MP3" or codec == "AAC") then -- only mp3 and aac
+                      if title and (codec == "MP3" or codec == "AAC" or codec == "AAC+" or codec == "OGG") then
 			add_stream( title ,url , 'Genre: ' .. genre, url )
 --			add_stream( title ,url , url ) -- only for testing
                       end
