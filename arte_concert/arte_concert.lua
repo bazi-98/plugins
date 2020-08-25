@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.5.5 vom 09.04.2020
+	Vers.: 1.5.6 vom 25.08.2020
 	Copyright (C) 2016-2020, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -129,6 +129,7 @@ function getdata(Url,outputfile)
 	if Curl == nil then
 		Curl = curl.new()
 	end
+--	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (Linux mips; U;HbbTV/1.1.1 (+RTSP;DMM;Dreambox;0.1a;1.0;) CE-HTML/1.0; en) AppleWebKit/535.19 no/Volksbox QtWebkit/2.2",followRedir=true,o=outputfile }
 	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.77 Large Screen Safari/534.24 GoogleTV/000000",followRedir=true,o=outputfile }
 	if ret == CURL.OK then
 		return data
@@ -174,21 +175,11 @@ function decodeImage(b64Image)
 	return retImg
 end
 
--- convert stream address according to the selected quality
+-- convert stream address according to the best quality
 function conv_url(_string)
 	if _string == nil then return _string end
        _string = string.gsub(_string,'\\','');
-		if qual < 2 then -- = HD
---				_string = string.gsub(_string,'master.m3u8','index_1_av.m3u8');
-				_string = string.gsub(_string,'master.m3u8','master.m3u8'); -- hardcore fix for https://artehlsevent03-i.akamaihd.net/hls/live/252717/channel03/master.m3u8 ecta
-
-		elseif qual > 2 then -- = qual = 3 = SD
-				_string = string.gsub(_string,'master.m3u8','index_2_av.m3u8');
-				_string = string.gsub(_string,'2200_','800_');
-		else  -- = qual = 2 = MD
-				_string = string.gsub(_string,'master.m3u8','index_0_av.m3u8');
-				_string = string.gsub(_string,'2200_','1500_');
-		end				
+       _string = string.gsub(_string,'master.m3u8','index_1_av.m3u8');
  	return _string
 end
 
@@ -262,7 +253,7 @@ function conv_str(_string)
 	_string = string.gsub(_string,'u2018','‘');
 	_string = string.gsub(_string,'u2013','–');
 	_string = string.gsub(_string,'u2026','…');
-	_string = string.gsub(_string,'u00bf','¿');
+	_string = string.gsub(_string,'u00bf',''); -- ¿
 	_string = string.gsub(_string,'u00bb','»');
 	_string = string.gsub(_string,'u00ab','«');
 	_string = string.gsub(_string,'u00f8','ø');
@@ -277,11 +268,11 @@ function fill_playlist(id)
 		if v[1] == id then
 			sm:hide()
 			nameid = v[2]	
-			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit ,nil) -- Version default
---			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternative 
+--			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
+			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternative
 				if data then
-				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version default
---				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version alternative
+--				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version default
+				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version alternative 
 					if title then
 						add_stream( conv_str(title), page , conv_str(teaser) ) 
 				        end
@@ -361,9 +352,8 @@ function select_playitem()
       if  vPlay  ==  nil  then
 	vPlay  =  video.new()
       end
-
-	if page then
-		local js_page = getdata('https://api.arte.tv/api/player/v1/config/'.. language .. '/'.. page .. '?lifeCycle=1',nil)
+	if page then --- https://api.arte.tv/api/player/v1/config/de/099195-004-A?lifeCycle=1
+		local js_page = getdata('https://api.arte.tv/api/player/v1/config/'.. language .. '/'.. page .. '?lifeCycle=1',nil) -- apicall
                 if js_page ~= nil then
 			local jnTab = json:decode(js_page)
 			local video_url = nil
