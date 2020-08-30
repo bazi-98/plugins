@@ -194,7 +194,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 		elseif msg == RC.down or msg == RC.page_down then
 			ct:scroll{dir="down"};
 		end
-	until msg == RC.ok or msg == RC.home
+	until msg == RC.ok or msg == RC.home or msg == RC.info
 	wh:hide()
 end
 
