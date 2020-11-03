@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.5.6 vom 25.08.2020
+	Vers.: 1.5.7 vom 03.11.2020
 	Copyright (C) 2016-2020, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -86,6 +86,7 @@ local subs = {
 {'MUD', 'Int. Music'},
 {'CLA', 'Classic'},
 {'OPE', 'Opera'},
+{'BAR', 'Barock'},
 {'ADS', 'Performance'}
 }
 
@@ -268,11 +269,11 @@ function fill_playlist(id)
 		if v[1] == id then
 			sm:hide()
 			nameid = v[2]	
---			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
-			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternative
+			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
+--			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternative
 				if data then
---				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version default
-				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version alternative 
+				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version default
+--				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version alternative 
 					if title then
 						add_stream( conv_str(title), page , conv_str(teaser) ) 
 				        end
@@ -352,7 +353,7 @@ function select_playitem()
       if  vPlay  ==  nil  then
 	vPlay  =  video.new()
       end
-	if page then --- https://api.arte.tv/api/player/v1/config/de/099195-004-A?lifeCycle=1
+	if page then
 		local js_page = getdata('https://api.arte.tv/api/player/v1/config/'.. language .. '/'.. page .. '?lifeCycle=1',nil) -- apicall
                 if js_page ~= nil then
 			local jnTab = json:decode(js_page)
