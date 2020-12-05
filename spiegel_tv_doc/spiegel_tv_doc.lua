@@ -96,7 +96,7 @@ function conv_str(_string)
 	_string = string.gsub(_string,'&#34','"');
 	_string = string.gsub(_string,"&#261","ą");
 	_string = string.gsub(_string,";","");
-	_string = string.gsub(_string,"SPIEGEL TV: ","");
+--	_string = string.gsub(_string,"SPIEGEL TV: ","");
 	_string = string.gsub(_string,'u201e','„');
 	_string = string.gsub(_string,'u201c','“');
 	_string = string.gsub(_string,'u00d8','ø');
@@ -260,10 +260,6 @@ function select_playitem()
 
 	local js_url = getdata('https://vcdn01.spiegel.de/v2/media/' .. url1,nil)
 
-	if js_url == nil then -- dummy, kann gelöscht werden wenn der Beitrag vom 14 Jul 2020 aus dem spiegel-tv/index.rss rausgefallen ist
-		js_url = getdata('https://vcdn01.spiegel.de/v2/media/253bWLRR',nil)
-	end
-
 	local url = js_url:match('180p.-"file":"(https:.-videos.-mp4)"') 
 
 	if url == nil then
@@ -286,6 +282,7 @@ function select_playitem()
 		vPlay:PlayFile("SpiegelTV",url,p[pmid].title);
 	else
 		print("Video URL not  found")
+		local h = hintbox.new{ title="Info", text="Das Video ist nicht mehr verfügbar!", icon="info"};
 	end
 
    end
