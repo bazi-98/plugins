@@ -1,10 +1,10 @@
 --[[
 	WDR:Rockpalast
-	Vers.: 1.01
+	Vers.: 1.02
 
 	Copyright (C): 
         2016: bazi98 & SatBaby
-        2017 - 2020  bazi98
+        2017 - 2021  bazi98
 
         App Description:
         The program evaluates Rockpalst-Videos from the WDR mediathek and provides 
@@ -35,6 +35,7 @@ local json = require "json"
 
 -- Auswahl 
 local subs = {
+	{'rockpalast-100', '2021'},
 	{'rockpalast266', '2020'},
 	{'rockpalast264', '2019'},
 	{'rockpalast-156', '2018'},
@@ -148,8 +149,8 @@ function fill_playlist(id) --- > begin playlist
 					local title,seite,summary = item:match('<title>(.-)</title>.-<link.-href="(http.-html)".-<summary>(.-)</summary>') 
 					title = conv_str(title)
 					if seite and title then
-						add_stream( string.sub(title, 1, 60), seite, summary) -- only for test, shorten to a maximum of 60 characters
---						add_stream( title, seite, summary)
+--						add_stream( string.sub(title, 1, 60), seite, summary) -- only for test, shorten to a maximum of 60 characters
+						add_stream( title, seite, summary)
 					end
 				end
 			end
@@ -162,12 +163,20 @@ local epg = ""
 local title = ""
 
 function epgInfo (xres, yres, aspectRatio, framerate)
+	if #epg < 1 then return end 
 	local dx = 600;
 	local dy = 300;
-	local x = ((SCREEN['END_X'] - SCREEN['OFF_X']) - dx) / 2;
-	local y = ((SCREEN['END_Y'] - SCREEN['OFF_Y']) - dy) / 2;
+	local x = 0;
+	local y = 0;
 
-	local wh = cwindow.new{x=x, y=y, dx=dx, dy=dy, title="WDR: Rockpalast", icon="", has_shadow="true", show_footer="false"};
+	local hw = n:getRenderWidth(FONT['MENU'],title) + 20
+	if hw > 400 then
+		dy = hw
+	end
+	if dy >  SCREEN.END_X - SCREEN.OFF_X - 20 then
+		dy = SCREEN.END_X - SCREEN.OFF_X - 20
+	end
+	local wh = cwindow.new{x=x, y=y, dx=dx, dy=dy, title="WDR: Rockpalast", icon="", has_shadow=true, show_footer=false};
 	dy = dy + wh:headerHeight()
 
 	local ct = ctext.new{parent=wh, x=20, y=0, dx=0, dy=dy, text = epg, font_text=FONT['MENU'], mode = "ALIGN_SCROLL | DECODE_HTML"};
@@ -177,8 +186,9 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 		h = SCREEN.END_Y - SCREEN.OFF_Y -20
 	end
  	wh:setDimensionsAll(x,y,dx,h)
-        ct:setDimensionsAll(20,0,dx-40,h)
+	ct:setDimensionsAll(20,0,dx,h)
 	wh:setCenterPos{3}
+
 	wh:paint()
 
 	repeat
