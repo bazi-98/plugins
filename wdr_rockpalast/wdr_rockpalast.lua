@@ -186,7 +186,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 		h = SCREEN.END_Y - SCREEN.OFF_Y -20
 	end
  	wh:setDimensionsAll(x,y,dx,h)
-	ct:setDimensionsAll(20,0,dx,h)
+	ct:setDimensionsAll(20,0,dx-40,h)
 	wh:setCenterPos{3}
 
 	wh:paint()
