@@ -1,7 +1,7 @@
 --[[
 	Netzkino (light -free)
-	Vers.: 0.1
-	Copyright (C) 2020  fritz
+	Vers.: 0.2
+	Copyright (C) 2020-21  fritz
 	Copyright (C) 2009  for the Base64 encoder/decoder function by Alex Kloss
 
         Addon Description:
@@ -52,9 +52,8 @@ local subs = {
 	{'scifikino', 'Scifikino'},
 	{'kinderkino', 'Kinderkino'},
 	{'spasskino', 'Spasskino'},
-	{'queerkino', 'Queerkino'},
+	{'themenkino-genre', 'Themenkino'},
 	{'horrorkino', 'Horrorkino'},
-	{'prickelkino', 'Prickelkino'},
 	{'kinoab18', 'Kino ab 18'}
 }
 
