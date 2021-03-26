@@ -1,6 +1,6 @@
 --[[
 	Netzkino (light -free)
-	Vers.: 0.2
+	Vers.: 0.3
 	Copyright (C) 2020-21  fritz
 	Copyright (C) 2009  for the Base64 encoder/decoder function by Alex Kloss
 
@@ -42,6 +42,8 @@ local json = require "json"
 -- Auswahl -- siehe https://github.com/streamxstream/plugin.video.xstream/blob/nightly/sites/netzkino_de.py
 local subs = {
 	{'neu', 'Neu bei Netzkino'},
+	{'meisgesehene_filme', 'meist gesehene Filme'},
+	{'netzkinoplus-highlights', 'Highlights'},
 	{'actionkino', 'Actionkino'},
 	{'animekino', 'Animekino'},
 	{'arthousekino', 'Arthousekino'},
@@ -54,7 +56,20 @@ local subs = {
 	{'spasskino', 'Spasskino'},
 	{'themenkino-genre', 'Themenkino'},
 	{'horrorkino', 'Horrorkino'},
-	{'kinoab18', 'Kino ab 18'}
+	{'themenkino-frontpage', 'Themenkino'},
+	{'beste-bewertung', 'beste Bewertung'},
+	{'kriegsfilme-frontpage', 'Kriegsfilme'},
+	{'beliebte-animes', 'Beliebte Animes'},
+	{'meisgesehene_filme', 'meisgesehene Filme'},
+	{'highlights', 'Highlights'},
+	{'netzkinoplus-highlights', 'Netzkino plus'},
+	{'mockbuster-frontpage', 'Mockbuster'},
+	{'filme_mit_auszeichnungen', 'Filme mit Auszeichnungen'},
+	{'frontpage-exklusiv', 'Exklusiv'},
+	{'top-20-frontpage', 'Top 20'},
+	{'empfehlungen_woche', 'Empfehlungen der Woche'},
+	{'kinoab18', 'Kino ab 18'},
+	{'letzte-chance', 'letzte Chance'}
 }
 
 --Objekte
