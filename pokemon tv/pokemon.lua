@@ -1,8 +1,8 @@
 --[[
 	Pokémon TV(light)
-	Vers.: 0.2
+	Vers.: 0.3
 
-	Copyright (C) 2020, fritz
+	Copyright (C) 2020-2021, fritz
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
         Addon Description:
@@ -157,14 +157,15 @@ function sec_to_min(_string)
 end
 
 function fill_playlist() 
-	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/' .. langue .. '/',nil)
+	local data = getdata('https://www.pokemon.com/api/pokemontv/v2/channels/' .. langue .. '/',nil) -- https://www.pokemon.com/api/pokemontv/v2/channels/de/
 	if data then
-		for  item in data:gmatch('{"rating(.-)m3u8"')  do
-			local title = item:match('"title":"(.-)",') -- Program title
+		for  item in data:gmatch('"rating(.-)size"')  do
 			local description = item:match('"description":"(.-)",') -- Consignment description
-			local url = item:match('"id":"(.-)",') -- Link
-			if title then
+			local title = item:match('"title":"(.-)",') -- Program title
+			local url = item:match('captions.-"id":"(.-)",') -- Link
+			if url then
 				add_stream(title,"https://production-ps.lvp.llnw.net/r/PlaylistService/media/" .. url .."/getMobilePlaylistByMediaId",conv_str(description) )
+--				add_stream(title,"https://production-ps.lvp.llnw.net/r/PlaylistService/media/" .. url .."/getMobilePlaylistByMediaId", url ) --only for test
 			end
             end
 	end
@@ -244,6 +245,9 @@ function select_playitem()
 	local data = getdata(url,nil)
 	local url  =  data:match('"HttpLiveStreaming%"%,%"mobileUrl%"%:%"(http.-m3u8)"')
 	local duration  =  data:match('"durationInMilliseconds":(.-),')
+	if duration == nil then
+		duration = "0"
+	end
 	if title == nil then
 		title = p[pmid].title
 	end
