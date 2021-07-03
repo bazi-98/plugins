@@ -229,6 +229,36 @@ function showsubmenu(js)
 	sm:exec()
 end
 
+function m3u8_best_url(m3u8_url)
+	local data = getdata(m3u8_url)
+	local videoUrl = nil
+	if data then
+		local host = m3u8_url:match('([%a]+[:]?//[_%w%-%.]+)/')
+		local lastpos = (m3u8_url:reverse()):find("/")
+		local hosttmp = m3u8_url:sub(1,#m3u8_url-lastpos)
+		if hosttmp then
+			host = hosttmp .."/"
+		end
+		local res = 0
+		for band, res1, res2, url in data:gmatch('BANDWIDTH=(%d+).-RESOLUTION=(%d+)x(%d+).-\n(.-)\n') do
+			if url and res1 then
+				local nr = tonumber(res1)
+				if nr < 2000 and nr > res then
+					res=nr
+					if host and url:sub(1,4) ~= "http" then
+						url = host .. url
+					end
+					videoUrl = url
+				end
+			end
+		end
+	end
+
+	if videoUrl == nil then video_url = m3u8_url end
+
+	return videoUrl
+end
+
 function select_playitem()
 	local m=menu.new{name="", icon=srf} -- = only name
 	for i,r in  ipairs(p) do
@@ -279,10 +309,20 @@ function select_playitem()
 				end
 				local video_url = nil
 				local GeoBlockInfo = ""
-				if js and js.chapterList[1] and js.chapterList[1].analyticsMetadata.media_is_geoblocked then   GeoBlockInfo = "\nGeo Blocking Aktiv!" end
-
-				if js.chapterList[1].resourceList and js.chapterList[1].resourceList[4] and js.chapterList[1].resourceList[4].url and js.chapterList[1].resourceList[4].url then 
+				if js and js.chapterList[1] and js.chapterList[1].analyticsMetadata.media_is_geoblocked then
+					local block = js.chapterList[1].analyticsMetadata.media_is_geoblocked
+					if type(block) == 'boolean' or block:lower() == "true" then
+						GeoBlockInfo = "\nGeo Blocking Aktiv!"
+					end
+				end
+				if js.chapterList[1].resourceList and js.chapterList[1].resourceList[4] and js.chapterList[1].resourceList[4].url then
 						video_url = js.chapterList[1].resourceList[4].url
+				elseif js.chapterList[1].resourceList and js.chapterList[1].podcastHdUrl then
+						video_url = js.chapterList[1].podcastHdUrl
+				elseif js.chapterList[1].resourceList and js.chapterList[1].resourceList[2] and js.chapterList[1].resourceList[2].url then
+						video_url = js.chapterList[1].resourceList[2].url
+				elseif js.chapterList[1].resourceList and js.chapterList[1].resourceList[1] and js.chapterList[1].resourceList[1].url then
+						video_url = js.chapterList[1].resourceList[1].url
 				end
 				if js.chapterList[1] then
 					if js.chapterList[1] and js.chapterList[1].title then
@@ -308,6 +348,10 @@ function select_playitem()
 				end
 
 				if video_url then
+					local m3u8_url = video_url:match('(http.-m3u8)')
+					if m3u8_url then
+						video_url = m3u8_best_url(m3u8_url)
+					end
 					epg = epg 
 					vPlay:setInfoFunc("epgInfo")
 --					vPlay:PlayFile("SRF",url_str(video_url),title,url_str(video_url)); -- nur zum testen mit Url-Anzeige auf der Infobar
