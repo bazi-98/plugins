@@ -227,6 +227,11 @@ function skyde(sky_url)
 	if jnTab.headers then
 		local i = 1
 		for k, v in pairs(jnTab.headers) do
+			if k == "Authorization" then
+				local vtmp = v:match("(.-)&")
+				if vtmp then v = vtmp end
+				v = dec(v)
+			end
 			header_opt[i] = k .. ":" .. v
 			i = i + 1
 		end
