@@ -155,7 +155,7 @@ function fill_playlist()
 	if data then
 		local url1,title1,datum1,url2,title2,datum2 = data:match('"id":"(.-mp4)","titolo":"(.-)","data":"(.-)",.-"id":"(.-mp4)","titolo":"(.-)","data":"(.-)",')
 			datum1 = datum1:gsub("-",".")
-			datum1 = datum2:gsub("-",".")
+			datum2 = datum2:gsub("-",".")
 			if (title1 == "Tagesschau 10 nach 10") then
 				description1 = "Spätnachrichten "
 			else
