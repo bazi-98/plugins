@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.5.8 vom 29.07.2021
+	Vers.: 1.5.9 vom 11.08.2021
 	Copyright (C) 2016-2021, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -59,7 +59,7 @@ basisurl= "http://concert.arte.tv/"
     language = "it" -- > italiano
 ]]
 
-language = "de" -- default = "de"
+language = "de" -- default = "de" with the alternative version, only the options 'deutsch' or 'français' are possible 
 
 --[[
      Mit der Option "Qualität" wird festgelegt mit welcher Auflösung die Videos angezeigt werden sollen.
@@ -84,7 +84,7 @@ local subs = {
 {'MUE', 'Electronic'},
 {'JAZ', 'Jazz'},
 {'MUD', 'Int. Music'},
--- {'CLA', 'Classic'}, -- no Videos more
+{'CLA', 'Classic'},
 {'OPE', 'Opera'},
 {'BAR', 'Barock'},
 {'ADS', 'Performance'}
@@ -130,8 +130,7 @@ function getdata(Url,outputfile)
 	if Curl == nil then
 		Curl = curl.new()
 	end
---	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (Linux mips; U;HbbTV/1.1.1 (+RTSP;DMM;Dreambox;0.1a;1.0;) CE-HTML/1.0; en) AppleWebKit/535.19 no/Volksbox QtWebkit/2.2",followRedir=true,o=outputfile }
-	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.77 Large Screen Safari/534.24 GoogleTV/000000",followRedir=true,o=outputfile }
+	local ret, data = Curl:download{url=Url,A="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",followRedir=true,o=outputfile }
 	if ret == CURL.OK then
 		return data
 	else
@@ -260,6 +259,7 @@ function conv_str(_string)
 	_string = string.gsub(_string,'u00f8','ø');
 	_string = string.gsub(_string,'u2026','…');
 	_string = string.gsub(_string,'u00aa','ª');
+	_string = string.gsub(_string,'u0300','̀ ');
 	return _string
 end 
 
@@ -269,11 +269,16 @@ function fill_playlist(id)
 		if v[1] == id then
 			sm:hide()
 			nameid = v[2]	
---			local data = getdata('https://www.arte.tv/guide/api/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version old
-			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version default
+			local data = getdata('https://www.arte.tv/api/rproxy/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
+--			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternativ = source alternativ
 				if data then
---				    for  page, title, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-"shortDescription":"(.-)",.-}')  do -- Version old
- 				    for  page, title, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-"teaserText":"(.-)",.-}')  do -- Version default 
+				    for  page, title, subtitle, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
+-- 				    for  page, title, subtitle, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"durationSeconds.-"teaserText":"(.-)",.-}')  do -- Version alternativ 
+					if subtitle == "null" or subtitle == " null" or subtitle == nil then
+						title = title
+					else
+						title = title .. " - " .. subtitle
+					end
 					if title then
 						add_stream( conv_str(title), page , conv_str(teaser) ) 
 				        end
@@ -376,9 +381,16 @@ function select_playitem()
 				video_url = jnTab.videoJsonPlayer.VSR.RTMP_SQ_1.streamer .. jnTab.videoJsonPlayer.VSR.RTMP_SQ_1.url
 			end
 
-			title = p[pmid].title 
+			if jnTab.videoJsonPlayer.VTI then
+				title = jnTab.videoJsonPlayer.VTI
+			else
+				title = p[pmid].title 
+			end
+
 			if jnTab.videoJsonPlayer.subtitle then
-				title = (title .. " - " .. jnTab.videoJsonPlayer.subtitle)
+				subtitle = jnTab.videoJsonPlayer.subtitle
+			else
+				subtitle = " "
 			end
 
 				local videoplayed = false
