@@ -1,6 +1,6 @@
 --[[
 	Anixe Mediathek
-	Vers.: 0.1
+	Vers.: 0.2
 	Copyright
         (C) 2021 bazi98
 
@@ -23,8 +23,6 @@
 
         Copyright (C) for the linked videos and for the Anixe TV-Logo by Anixe TV or the respective owners!
 ]]
-
-local json = require "json"
 
 -- Auswahl -
 local subs = {
@@ -82,43 +80,97 @@ function getdata(Url,outputfile)
 end
 
 -- decode Unicode Character
-function conv_str(_string) -- <h1>Ã¶ Ã¼ Ã¤</h1> Ã„ Ãœ Ã– Ã¼ Ã¶ Ã¤ statt. Ä Ü Ö ü ö ä ß
-	if _string == nil then return _string end
---        _string = string.gsub(_string,'\\','');
-	_string = string.gsub(_string,'&Atilde;Â&Atilde;Â&Atilde;Â&Atilde;Â&Atilde;Â&acirc;ÂÂ','');
-	_string = string.gsub(_string,'&Acirc;&nbsp;','');
-	_string = string.gsub(_string,'Ã¤','ä');
-	_string = string.gsub(_string,'Ã–Ã–Ã–Ã–Ã–','');
-	_string = string.gsub(_string,'Ã–','Ö');
-	_string = string.gsub(_string,'ÃÂ','Ä');
-	_string = string.gsub(_string,'Ã¶','ö');
-	_string = string.gsub(_string,'Ã¼','ü');
-	_string = string.gsub(_string,'Ãœ','Ü');
-	_string = string.gsub(_string,'ÃŸ','ß');
-	_string = string.gsub(_string,'&Atilde;&curren;','ä');
-	_string = string.gsub(_string,'&Atilde;&para;','ö');
-	_string = string.gsub(_string,'&Atilde;&frac14;','ü');
-	_string = string.gsub(_string,'&Atilde;&copy;','é');
-	_string = string.gsub(_string,'&Atilde;Â&Atilde;Â&Atilde;Â&Atilde;Â&Atilde;Â','');
-	_string = string.gsub(_string,'&Atilde;Â&Atilde;Â&Atilde;Â&Atilde;Â&Atilde;Â','');
-	_string = string.gsub(_string,'&Atilde;Â','Ö');
-	_string = string.gsub(_string,'&Atilde;Â&Atilde;Â','');
-	_string = string.gsub(_string,'&amp;quot;','"');
-	_string = string.gsub(_string,'&amp;amp;','&');
-	_string = string.gsub(_string,'&#040;','(');
-	_string = string.gsub(_string,'&#041;',')');
-  	_string = string.gsub(_string,'&acute;','');
-	_string = string.gsub(_string,'&Acirc;s','');
-	_string = string.gsub(_string,'&acirc;','');
-	_string = string.gsub(_string,'Â','');
-	_string = string.gsub(_string,'ÂÂ','');
-	_string = string.gsub(_string,'&lt;.-&gt;','');
-	_string = string.gsub(_string,'u&#776;','ü');
-	_string = string.gsub(_string,'Öraa','Ära');
-	_string = string.gsub(_string,'ßsterreich','Österreich');
-	_string = string.gsub(_string,'ÖÖÖÖÖ','');
-	_string = string.gsub(_string,'ßßßßß','');
-	return _string
+function tounicode(c)
+	if c > 8200 then
+		return " "
+	end
+
+	if c > 383 then
+		c=c-256
+		return "\xC6" .. string.format('%c', c)
+	elseif c > 319 then
+		c=c-192
+		return "\xC5" .. string.format('%c', c)
+	elseif c > 254 then
+		c=c-128
+		return "\xC4" .. string.format('%c', c)
+	elseif c > 191 then
+		c=c-64
+		return "\xC3" .. string.format('%c', c)
+	else
+		return string.format('%c', c)
+	end
+end
+
+function convHTMLentities(summary)
+	if summary ~= nil then
+		summary = summary:gsub("&#([0-9]+);",function(c) return tounicode(tonumber(c)) end)
+		summary = summary:gsub("&#x([%x]+);",function(c) return tounicode(tonumber(c, 16)) end)
+	end
+	return summary
+end
+
+local function unescape(s)
+	s = s:gsub("\240[\144-\191][\128-\191][\128-\191]","")
+	s = s:gsub('&nbsp;',	'\xA0')
+	s = s:gsub('&iexcl;',	'\xA1')
+	s = s:gsub('&cent;',	'\xA2')
+	s = s:gsub('&pound;',	'\xA3')
+	s = s:gsub('&curren;',	'\xA4')
+	s = s:gsub('&yen;',		'\xA5')
+	s = s:gsub('&brvbar;',	'\xA6')
+	s = s:gsub('&sect;',	'\xA7')
+	s = s:gsub('&uml;',		'\xA8')
+	s = s:gsub('&copy;',	'\xA9')
+	s = s:gsub('&ordf;',	'\xAA')
+	s = s:gsub('&laquo;',	'\xAB')
+	s = s:gsub('&not;',		'\xAC')
+	s = s:gsub('&shy;',		'\xAD')
+	s = s:gsub('&reg;',		'\xAE')
+	s = s:gsub('&macr;',	'\xAF')
+	s = s:gsub('&Acirc;',	'\xC2')
+	s = s:gsub('&Atilde;',	'\xC3')
+	s = s:gsub('&Auml;',	'\xC4')
+	s = s:gsub('&Aring;',	'\xC5')
+	s = s:gsub('&AElig;',	'\xC6')
+	s = s:gsub('&Ccedil;',	'\xC7')
+	s = s:gsub('&Egrave;',	'\xC8')
+	s = s:gsub('&Eacute;',	'\xC9')
+	s = s:gsub("&deg;",		"\xB0")
+	s = s:gsub("&plusmn;",	"\xB1")
+	s = s:gsub("&sup2;",	"\xB2")
+	s = s:gsub("&sup3;",	"\xB3")
+	s = s:gsub("&acute;",	"\xB4")
+	s = s:gsub("&micro;",	"\xB5")
+	s = s:gsub('&para;',	'\xB6')
+	s = s:gsub('&cedil;',	'\xB8')
+	s = s:gsub('&sup1;',	'\xB9')
+	s = s:gsub('&ordm;',	'\xBA')
+	s = s:gsub('&raquo;',	'\xBB')
+	s = s:gsub('&frac14;',	'\xBC')
+	s = s:gsub('&frac12;',	'\xBD')
+	s = s:gsub('&frac34;',	'\xBE')
+	s = s:gsub('&iquest;',	'\xBF')
+	s = s:gsub('&acirc;',	'\xE2')
+	s = s:gsub('&times;',	'\xD7')
+	s = s:gsub('&divide;',	'\xF7')
+
+	s = s:gsub('&lt;',		'<')
+	s = s:gsub('&gt;',		'>')
+	s = s:gsub('&amp;amp;',	'&') -- broken code
+	s = s:gsub('&amp;',		'&')
+	s = s:gsub('&quot;',	'"' )
+
+	s = s:gsub('&#776;', '\xCC\x88' )
+	-- broken code --
+	s = s:gsub('\xC3\xC3',		'\xC3')
+	s = s:gsub('\x82\xC2',		'')
+	s = s:gsub('\xC2\x80',		'')
+	s = s:gsub('\xC3\x80',		'')
+	s = s:gsub('\xC3\x82\xE2',	'"')
+	s = s:gsub('\xC3\x82',		'')
+	s = s:gsub('\xC3\x9E',		'')
+	return s
 end
 
 -- Duration
@@ -146,7 +198,12 @@ function fill_playlist(id)
 				for  item in data:gmatch('<li class.-action(.-)</span></li>')  do
 					local url, time, teaser, title = item:match("videourl='(http.-)'.-videolength='(.-)'.-showDetail%(%'(.-)%'%).-<span.-class.-title.->(.-)</span>") 
 					if title then
-						add_stream( conv_str(title), url, conv_str(teaser), time)
+						title = convHTMLentities(title)
+						title = unescape(title)
+						teaser = convHTMLentities(teaser)
+						teaser = unescape(teaser)
+						teaser = teaser:gsub('<a href=.-</a>','')
+						add_stream( title, url, teaser, time)
 					end
 				end
 			end
@@ -220,6 +277,7 @@ function select_playitem()
 
 	if url then
 		epg = p[pmid].title .. "\n\n"..p[pmid].from .. "\n\nDauer : ".. sec_to_min(p[pmid].length)
+
 		vPlay:setInfoFunc("epgInfo")
 --		vPlay:PlayFile("Anixe HD",url,p[pmid].title,url); -- only for testing with display url
 		vPlay:PlayFile("Anixe HD",url,p[pmid].title); -- default
