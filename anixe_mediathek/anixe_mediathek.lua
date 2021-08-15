@@ -162,6 +162,7 @@ local function unescape(s)
 	s = s:gsub('&quot;',	'"')
 
 	s = s:gsub('&#776;', '\xCC\x88' )
+	s = s:gsub('&#8232;',   '' )
 	-- broken code --
 	s = s:gsub('\xC3\xC3',		'\xC3')
 	s = s:gsub('\x82\xC2',		'')
