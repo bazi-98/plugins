@@ -20,13 +20,13 @@
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
-        Copyright (C) for the linked videos and for the Logo by the respective owners!
+        Copyright (C) for the linked videos and for the Logo by the RBB or the respective owners!
         Copyright (C) for the Base64 encoder/decoder function by Alex Kloss <alexthkloss@web.de>, licensed under the terms of the LGPL
 ]]
 
 -- date-functions
-function date_from_string(_string) -- generates the correct date from a string in the d.m.Y format e.g. -> 02.12.2016 
-    local xday, xmonth, xyear = _string:match("(%d+).(%d+).(%d+)")
+function date_from_string(_string) -- generates the correct date from a string in the d.m.Y format e.g. -> 02.12.2016
+local xday, xmonth, xyear = _string:match("(%d+).(%d+).(%d+)")
     return os.time({day = xday, month = xmonth, year = xyear})
 end
 
@@ -184,7 +184,7 @@ function decodeImage(b64Image)
 end
 
 function fill_playlist()
-	local data = getdata('http://itv.mit-xperts.com/rbbsandmann/dyn/index.php',nil) 
+	local data = getdata('http://itv.mit-xperts.com/rbbsandmann/dyn/index.php',nil)
 	if data then
 		for  item in data:gmatch('{(.-)xml')  do
 			local title,url = item:match('"title":"(.-)","img".-"vid":"(.-mp4)"')
@@ -196,9 +196,7 @@ function fill_playlist()
 			end
             end
 	end
-
 end -- > end of playlist
-
 
 function set_pmid(id)
   pmid=tonumber(id);
@@ -208,6 +206,7 @@ end
 function select_playitem()
   local m=menu.new{name="Sandmännchen", icon=""} -- = only name
 --local m=menu.new{name="", icon=sandmann} -- = only logo
+
   for i,r in  ipairs(p) do
     m:addItem{type="forwarder", action="set_pmid", id=i, icon="streaming", name=r.title, hint=r.url, hint_icon="hint_reload"}
   end
@@ -231,15 +230,14 @@ function select_playitem()
 	end
 
 	if url ~= nil then
-		url = p[pmid].url 
+		url = p[pmid].url
 	end
 
-	if url then 
+	if url then
 		vPlay:PlayFile("Sandmänchen",url, title, url);
 	else
 		print("Video URL not found")
 	end
-
    end
   until false
 end
