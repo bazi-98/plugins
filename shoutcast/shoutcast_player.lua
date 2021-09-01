@@ -75,7 +75,7 @@ function init()
 		local Nconfig	= configfile.new()
 		Nconfig:loadConfig(CONF_PATH .. "neutrino.conf")
 		local key = Nconfig:getString("shoutcast_dev_id", 'XXXXXXXXXXXXXXXX')
-		if key == 'XXXXXXXXXXXXXXXX' then key = "fa1669MuiRPorUBw" else shoutcast_dev_id = "fa1669MuiRPorUBw" end
+		if key == 'XXXXXXXXXXXXXXXX' then shoutcast_dev_id = "fa1669MuiRPorUBw" else shoutcast_dev_id = key end
 end
 
 function sleep(a)
