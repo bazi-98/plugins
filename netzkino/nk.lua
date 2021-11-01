@@ -41,15 +41,14 @@ local json = require "json"
 
 -- Auswahl -- siehe https://github.com/streamxstream/plugin.video.xstream/blob/nightly/sites/netzkino_de.py
 local subs = {
---	{'neu', 'Neu bei Netzkino'},
---	{'meisgesehene_filme', 'meist gesehene Filme'},
---	{'netzkinoplus-highlights', 'Highlights 1'},
-	{'netzkinoplus', 'Highlights'},
+	{'netzkinoplus', 'Netzkinoplus'},
 	{'actionkino', 'Actionkino'},
 	{'animekino', 'Animekino'},
 	{'arthousekino', 'Arthousekino'},
 	{'asiakino', 'Asiakino'},
 	{'dramakino', 'Dramakino'},
+	{'frontpage-exklusiv-frontpage', 'Exklusiv'},
+	{'netzkinoplus-highlights-frontpage', 'Highlights'},
 	{'thrillerkino', 'Thrillerkino'},
 	{'liebesfilmkino', 'Liebesfilmkino'},
 	{'scifikino', 'Scifikino'},
@@ -58,17 +57,9 @@ local subs = {
 	{'themenkino-genre', 'Themenkino'},
 	{'horrorkino', 'Horrorkino'},
 	{'themenkino-frontpage', 'Themenkino'},
---	{'beste-bewertung', 'beste Bewertung'},
---	{'kriegsfilme-frontpage', 'Kriegsfilme'},
---	{'beliebte-animes', 'Beliebte Animes'},
---	{'highlights', 'Highlights'},
 	{'mockbuster-frontpage', 'Mockbuster'},
---	{'filme_mit_auszeichnungen', 'Filme mit Auszeichnungen'},
---	{'frontpage-exklusiv', 'Exklusiv'},
 	{'top-20-frontpage', 'Top 20'},
---	{'empfehlungen_woche', 'Empfehlungen der Woche'},
 	{'kinoab18', 'Kino ab 18'},
---	{'letzte-chance', 'letzte Chance'}
 }
 
 --Objekte
