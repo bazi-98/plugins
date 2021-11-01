@@ -1,6 +1,6 @@
 --[[
 	Netzkino (light -free)
-	Vers.: 0.3
+	Vers.: 0.4
 	Copyright (C) 2020-21  fritz
 	Copyright (C) 2009  for the Base64 encoder/decoder function by Alex Kloss
 
@@ -41,9 +41,10 @@ local json = require "json"
 
 -- Auswahl -- siehe https://github.com/streamxstream/plugin.video.xstream/blob/nightly/sites/netzkino_de.py
 local subs = {
-	{'neu', 'Neu bei Netzkino'},
-	{'meisgesehene_filme', 'meist gesehene Filme'},
-	{'netzkinoplus-highlights', 'Highlights'},
+--	{'neu', 'Neu bei Netzkino'},
+--	{'meisgesehene_filme', 'meist gesehene Filme'},
+--	{'netzkinoplus-highlights', 'Highlights 1'},
+	{'netzkinoplus', 'Highlights'},
 	{'actionkino', 'Actionkino'},
 	{'animekino', 'Animekino'},
 	{'arthousekino', 'Arthousekino'},
@@ -57,17 +58,17 @@ local subs = {
 	{'themenkino-genre', 'Themenkino'},
 	{'horrorkino', 'Horrorkino'},
 	{'themenkino-frontpage', 'Themenkino'},
-	{'beste-bewertung', 'beste Bewertung'},
-	{'kriegsfilme-frontpage', 'Kriegsfilme'},
-	{'beliebte-animes', 'Beliebte Animes'},
-	{'highlights', 'Highlights'},
+--	{'beste-bewertung', 'beste Bewertung'},
+--	{'kriegsfilme-frontpage', 'Kriegsfilme'},
+--	{'beliebte-animes', 'Beliebte Animes'},
+--	{'highlights', 'Highlights'},
 	{'mockbuster-frontpage', 'Mockbuster'},
-	{'filme_mit_auszeichnungen', 'Filme mit Auszeichnungen'},
-	{'frontpage-exklusiv', 'Exklusiv'},
+--	{'filme_mit_auszeichnungen', 'Filme mit Auszeichnungen'},
+--	{'frontpage-exklusiv', 'Exklusiv'},
 	{'top-20-frontpage', 'Top 20'},
-	{'empfehlungen_woche', 'Empfehlungen der Woche'},
+--	{'empfehlungen_woche', 'Empfehlungen der Woche'},
 	{'kinoab18', 'Kino ab 18'},
-	{'letzte-chance', 'letzte Chance'}
+--	{'letzte-chance', 'letzte Chance'}
 }
 
 --Objekte
@@ -183,9 +184,9 @@ local title = ""
 
 function epgInfo (xres, yres, aspectRatio, framerate)
 	if #epg < 1 then return end 
-	local dx = 700;
+	local dx = 800;
 	local dy = 400;
-	local x = 0;
+	local x = 240;
 	local y = 0;
 
 	local hw = n:getRenderWidth(FONT['MENU'],title) + 20
