@@ -2,7 +2,7 @@
    LUA-Horoskop-Plugin
    (c) 2019 by bazi98
    Lizenz: GPL 2
-   Version 0.06
+   Version 0.07
 
    Horoskoptexte by Impulsprojekte UG (https://www.horoskopbox.de)
    decodeImage-Funktion by Alex Kloss (http://lua-users.org/wiki/)
@@ -147,16 +147,16 @@ local i
 for i = 1, 12 do
         if (i == 1) then
 		key = "red"
-		icon = "rot"
+		icon = "btn_red"
 	elseif (i == 2) then
 		key = "green"
-		icon = "gruen"
+		icon = "btn_green"
 	elseif (i == 3) then
 		key = "yellow"
-		icon = "gelb"
+		icon = "btn_yellow"
 	elseif (i == 4) then
 		key = "blue"
-		icon = "blau"
+		icon = "btn_blue"
 	else
 		j = i - 4
 		key = tostring (j)
