@@ -81,7 +81,11 @@ bundeslandauswahl ()
 	echo "ACTION='Schleswig-Holstein',echo '15' > /tmp/bundesland.data"	>> /tmp/bundesland.conf
 	echo "ACTION='Th'~u'ringen',echo '16' > /tmp/bundesland.data"		>> /tmp/bundesland.conf
 	echo "ENDMENU"								>> /tmp/bundesland.conf
+	if [ -s /var/tuxbox/plugins/shellexec.so ]; then
 	/var/tuxbox/plugins/shellexec.so /tmp/bundesland.conf > /dev/null
+	else
+	/usr/share/tuxbox/neutrino/plugins/shellexec.so /tmp/bundesland.conf > /dev/null
+	fi
 	if [ -s /tmp/bundesland.data ]; then
 		select=`sed -n 1p /tmp/bundesland.data`; select=`echo $select`
 	else
@@ -107,7 +111,11 @@ netzauswahl ()
 	sed -n "/\/select/,/\/select/p" | sed -n "/option/p" | sed -e "1,2d" | \
 	sed -e "s/^.*=\"\(.*\)\">\(.*\)<.*$/ACTION=\'\2\',echo \'\1\' \> \/tmp\/netz.data/g"   >> /tmp/netz.conf
 	echo "ENDMENU"                                                         >> /tmp/netz.conf
+	if [ -s /var/tuxbox/plugins/shellexec.so ]; then
 	/var/tuxbox/plugins/shellexec.so /tmp/netz.conf > /dev/null
+	else
+	/usr/share/tuxbox/neutrino/plugins/shellexec.so /tmp/netz.conf > /dev/null
+	fi
 	if [ -s /tmp/netz.data ]; then
 		auswahl=`cut -b 1-2 /tmp/netz.data`
 		if [ "$auswahl" == "k_" ]; then
@@ -146,7 +154,11 @@ subnetzauswahl ()
 		i=`expr $i + $step`
 	done
 	echo "ENDMENU"								>> /tmp/subnetz.conf
+	if [ -s /var/tuxbox/plugins/shellexec.so ]; then
 	/var/tuxbox/plugins/shellexec.so /tmp/subnetz.conf > /dev/null
+	else
+	/usr/share/tuxbox/neutrino/plugins/shellexec.so /tmp/subnetz.conf > /dev/null
+	fi
 	if [ -s /tmp/subnetz.data ]; then
 		subnetz=`cat /tmp/subnetz.data`; subnetz=`echo $subnetz`
 	else
@@ -203,6 +215,7 @@ mod_services ()
 		-e 's/symbol_rate/sr/g' \
 		-e 's/000\" inversion/\" inv/g' \
 		-e 's/onid/on/g' \
+		-e 's/type="a"/type="2"/g' \
 		-e 's/frequency/frq/g' \
 		-e 's/channel service_id/S i/g' \
 		-e 's/mod="5">/mod="5" sys="2">/g' \
