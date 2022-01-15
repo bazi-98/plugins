@@ -1,8 +1,8 @@
 --[[
 	Bibel TV Mediathek
-	Vers.: 0.1
+	Vers.: 0.2
 	Copyright
-        (C) 2021 bazi98 & SatBaby
+        (C) 2021-22 bazi98 & SatBaby
 
         App Description:
         There the player links are respectively read about the recent news clips of the German Television "Bibel TV"
@@ -38,9 +38,10 @@ local subs = {
 	{'Genre%3ESerien', 'Serien'},
 	{'Genre%3ESpielfilme', 'Spielfilme'},
 	{'Genre%3ENeuste%20Videos', 'Neuste Videos'},
-	{'Genre%3EOnline%20Specials', 'Online Specials'},
 	{'Genre%3EDokumentationen', 'Dokumentationen'},
-	{'Genre%3EDerzeit%20im%20Trend', 'Derzeit im Trend'}
+	{'Genre%3EDerzeit%20im%20Trend', 'Derzeit im Trend'},
+	{'Genre%3EMagazin', 'Magazine'},
+	{'Genre%3EMusik', 'Musik'}
 }
 
 --Objekte
