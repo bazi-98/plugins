@@ -1,7 +1,7 @@
 --[[
 	Käpt'n Blaubär(light)
-	Vers.: 0.3
-	Copyright (C) 2020, bazi98
+	Vers.: 0.4
+	Copyright (C) 2020-2022, bazi98
 
         App Description:
         The program evaluates Käpt'n Blaubär-Videos from the WDR mediathek and provides 
@@ -108,6 +108,10 @@ function fill_playlist()
 		for  item in data:gmatch('<url>(.-)</url>')  do
 			local title = item:match('<video:title><!%[CDATA%[(Käp.-)%]') -- Nur Sendunggen mit den Titel "Käpt'n Blaubär" anzeigen
 			local seite = item:match('<video:player_loc allow_embed="No"><!%[CDATA%[(.-js)%]')
+			if seite == nil then
+				seite = item:match('<video:player_loc allow_embed="No"><!%[CDATA%[(.-assetjsonp)%]')
+			end
+
 			if title then
 				url = seite
 				add_stream(conv_str(title), url, url)
@@ -144,7 +148,10 @@ function select_playitem()
       end
 
 	local js_data = getdata(url,nil)
-	video_url1 = js_data:match('mediaResource.-{"videoURL":"(//.-%m3u8)"')
+	video_url1 = js_data:match('mediaResource.-videoURL.-".-:.-"(//wdr.-m3u8)')
+	if video_url1 == nil then
+		print("Video URL 1 not found")
+	end
 
 	video_url2 = getdata("http:"..video_url1,nil)
 	video_url = video_url2:match('RESOLUTION=1280.-(http.-m3u8)')
@@ -155,18 +162,22 @@ function select_playitem()
 		video_url = video_url2:match('RESOLUTION=512.-(http.-m3u8)')
 	end
 
+	if video_url == nil then
+		video_url = video_url2:match('RESOLUTION=640.-(http.-m3u8)')
+	end
+
 	local epg1 = js_data:match('<meta name="twitter:description" content="(.-)">')
 	if epg1 == nil then
 		epg1 = p[pmid].from
 	end
 
-	local titel = js_data:match('trackerClipTitle":"(.-)",')
+	local titel = js_data:match('trackerClipTitle".-:.-"(.-)",')
 	if title == nil then
 		title = p[pmid].title
 	end
 
 	if video_url then
-	        vPlay:PlayFile("WDR",video_url ,conv_str(titel) );
+	        vPlay:PlayFile("WDR",video_url .. "?#User-Agent=AppleCoreMedia" ,conv_str(titel) );
 	else
 		print("Video URL not found")
 	end
