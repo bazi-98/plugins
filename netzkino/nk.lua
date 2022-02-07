@@ -1,7 +1,7 @@
 --[[
 	Netzkino (light -free)
-	Vers.: 0.4
-	Copyright (C) 2020-21  fritz
+	Vers.: 0.5
+	Copyright (C) 2020-22  fritz
 	Copyright (C) 2009  for the Base64 encoder/decoder function by Alex Kloss
 
         Addon Description:
@@ -39,8 +39,9 @@
 
 local json = require "json"
 
--- Auswahl -- siehe https://github.com/streamxstream/plugin.video.xstream/blob/nightly/sites/netzkino_de.py
+-- Auswahl
 local subs = {
+	{'neu-frontpage', 'Neu bei Netzkino'},
 	{'netzkinoplus', 'Netzkinoplus'},
 	{'actionkino', 'Actionkino'},
 	{'animekino', 'Animekino'},
@@ -158,6 +159,11 @@ function fill_playlist(id) --- > begin playlist
 			if data then
 				for  item in data:gmatch('{(.-Streaming.-)}')  do
 					local title,description,link = item:match(',"title":"(.-)","content":"(.-)",.-"Streaming":%["(.-)"%],') 
+					if description == nil or description == '' then
+--					description = item:match('"Stars":%["(.-)"%],"') 
+--					else
+						description = "Netzkino stellt für diese Sendung keinen Begleittext bereit"
+					end
 					seite = 'http://netzkino_and-vh.akamaihd.net/i/' .. link .. '.mp4/master.m3u8'
 --					seite = 'https://pmd.netzkino-seite.netzkino.de/' .. link .. '.mp4' -- alternativ Stream als mp4 -- only for testing
 					if seite and title then
