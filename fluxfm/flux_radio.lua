@@ -1,7 +1,7 @@
 --[[
 	Flux Radio
-	Vers.: 0.1
-	Copyright (C) 2020, fritz
+	Vers.: 0.2
+	Copyright (C) 2020,2022, fritz
 
 	License: GPL
 
@@ -21,7 +21,7 @@
 	Boston, MA  02110-1301, USA.
 
         Copyright (C) for the linked Radioservices and for the Logo by Plattform für regionale Musikwirtschaft GmbH,Berlin or the respective owners!
-        Streamquelle: https://fluxmusic.io/api/streams/
+        Streamquelle: https://fluxmusic.api.radiosphere.io/channels
 ]]
 
 --Objekte
@@ -41,8 +41,8 @@ function init()
         fluxlogo = decodeImage(" data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHEAAAAYCAYAAADNhRJCAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAALiMAAC4jAXilP3YAAALzSURBVGhD7ZnNjtMwEIDtFHrYO7cWOCEhIV6AI8ce2CvPwAW0HFaqtCyX7gvwDNyR+ga8ARJI3KD0tpUqViu1KhCvx5m06cTj2NmkP6SflGQce8aOx2M7iTiw/0g4KY1JBdLv948Hg8EnTBqoLalB0ZsyNop0aD7A2Y3jWNEsW1k1EkpEmNgSV9fi85absDk4h9nwcaBhR3qvMU4EaDDaohOiEEUn6peOQjORbftgnDibzcR8Pi88oij6gyp7gW5v8tQOvKPQP7Brx7SEjki24R5UYauMDV8dWg5Iy7ryssQ6Cm3mZSennkONEz1aNr2fAk2JupjQnL0W4v3bfJ1X16o5a2KKzSkcXNkAE6V59gIFxDWHmCw6AkMelFKFrTI2QnRsu09Qz97TZUSr1crZ+DuWqoUyJRtdL49RIHz8kJgsikTZgfOqzPkbId6d5JpjItHcLdNpHFXYKmMjVIeWp3D6urNZvaxjqFMo1ImLHy1x906MqXy+y4mNm05vQzzOhEZFnGnnAO2H/xJBo/w2yEusToRR6gKL7TWuSLXlQQRK3NJXyfkJChmi+yh41tfoSIR1j7JYLFAiBI5dmA6zx72ndv21gUGaE4/86my0E/V7I0or2u02SuvoMKydo0frTpPFr7WGw5roSdQJm0thY5M9Lr/w6vEouc7mQnz9Hr5aWZ0Ia4ILLLbXuNZ29tNbTduBbMQ9eZ5c1WVy9eEQiRa4cSq7NexsOHRU+tJIJ/rssPloxGvFnL5CISVgwvsvnOjjFBfJIrHeayS5RHbr2eJcnK7McnVz7IUTQ500mUxQykNtuUxz0ajqCMeM36yvFo4qjSp9MDoqQ6jC1nA4fNzr9b5hconNFq0PcNVZ1L6i/BR4+Udxq2zk26kvtE7ODtwuah7XfmoTkvQfIy0D2Oypn9qJ3JfwDbLT3045RzC3DdD/nJ4N209iX335QMk47++tsNNrom+HgvOm0+lv1597W4T5wunuSufJWzzbgZ1AiBsrPqKxN7ZaHgAAAABJRU5ErkJggg==")
 end
 
-function add_stream(t,u,f)
-  p[#p+1]={title=t,url=u,from=f,access=stream}
+function add_stream(t,u,f,b)
+  p[#p+1]={title=t,url=u,from=f,pic=b,access=stream}
 end
 
 function getdata(Url,outputfile)
@@ -127,23 +127,21 @@ function conv_url(_string)
 		_string = string.gsub(_string,'\\','');
 		_string = string.gsub(_string,'%%3A',':');
 		_string = string.gsub(_string,'%%2F','/');
-		_string = string.gsub(_string,'https','http');
-		_string = string.gsub(_string,'sslcast','cast');
 	return _string
 end
 
 function fill_playlist() 
-	local data = getdata('https://fluxmusic.io/api/streams/',nil) 
+	local data = getdata('https://fluxmusic.api.radiosphere.io/channels',nil) 
 	if data then
     			if  vPlay  ==  nil  then
 				vPlay  =  video.new()
 				vPlay:zapitStopPlayBack()
     			end
 		vPlay:ShowPicture("radiomode.jpg")
-		for  item in data:gmatch('"id"(.-)}}')  do
-			local title, url,pic = item:match('"title":"(.-)",.-"mp3320":"(http.-)",.-512.-(http.-)",')
+		for  item in data:gmatch('"channelId"(.-)}}')  do
+			local title, info, url,pic = item:match('"displayName":"(.-)",.-summary":"(.-)",.-streams.-"url":"(http.-)?quality.-coverImages.-512.-(http.-)",')
 			if title then
-				add_stream( title, url .. "?#User-Agent=AppleCoreMedia", pic )
+				add_stream( title, url, info,pic )
 			end
     			vPlay:StopPicture()
                 end
@@ -161,7 +159,7 @@ function select_playitem()
   local m=menu.new{name="", icon=fluxlogo} -- only logo, default
 
     	for i,r in  ipairs(p) do
-    		m:addItem{type="forwarder", action="set_pmid", id=i, icon="streaming", name=r.title, hint=r.url, hint_icon="hint_reload"}
+    		m:addItem{type="forwarder", action="set_pmid", id=i, icon="streaming", name=r.title, hint=r.from, hint_icon="hint_reload"}
     	end
     	local vPlay = nil
     	repeat
@@ -179,13 +177,13 @@ function select_playitem()
     			end
 
 -- geht bestimmt schöner
-			bild = p[pmid].from 
+			bild = p[pmid].pic 
 	                Curl:download { url = bild, A="Mozilla/5.0;", followRedir = true, o = "/tmp/flux.png"  }
 			vPlay:ShowPicture('/tmp/flux.png')
     		        if bild == nil then
     				vPlay:ShowPicture("radiomode.jpg") -- Ersatzbild
     			end
-    			vPlay:PlayFile("Flux-Music", url,p[pmid].title, url); -- mit Url auf Infobar
+    			vPlay:PlayFile("FluxFM", url,p[pmid].title, url); -- mit Url auf Infobar
     			vPlay:StopPicture()
     		else
     			print("Radio URL not  found")
