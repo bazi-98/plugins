@@ -1,7 +1,7 @@
 --[[
 	arte concert
-	Vers.: 1.5.9 vom 11.08.2021
-	Copyright (C) 2016-2021, bazi98
+	Vers.: 1.6.0 vom 05.05.2022
+	Copyright (C) 2016-2022, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
         Addon Description:
@@ -42,24 +42,24 @@ local json  = require "json"
 basisurl= "http://concert.arte.tv/"
 
 --[[
-    language version
+    langue version
 
     Mit der Auswahl der Sprachoptionen wird die Sprache des Video und der Texte festgelegt.
     Avec le choix des options de langue langue de la vidéo et le texte du message est défini.
-    Selecting the language in the language options sets the language of the videos and the message body.
+    Selecting the langue in the langue options sets the langue of the videos and the message body.
     Al seleccionar el idioma en las opciones de idioma, se establece el idioma de los videos y el cuerpo del mensaje.
     Z wyborem opcji język wideo i tekst wiadomości jest ustawiony.
     Selezionando la lingua nelle opzioni della lingua si imposta la lingua dei video e il corpo del messaggio.
 
-    language = "de" -- > deutsch
-    language = "fr" -- > français
-    language = "en" -- > english
-    language = "es" -- > español
-    language = "pl" -- > polski
-    language = "it" -- > italiano
+    langue = "de" -- > deutsch
+    langue = "fr" -- > français
+    langue = "en" -- > english
+    langue = "es" -- > español
+    langue = "pl" -- > polski
+    langue = "it" -- > italiano
 ]]
 
-language = "de" -- default = "de" with the alternative version, only the options 'deutsch' or 'français' are possible 
+langue = "de" -- default = "de" with the alternative api-version, only the options 'deutsch' or 'français' are possible 
 
 --[[
      Mit der Option "Qualität" wird festgelegt mit welcher Auflösung die Videos angezeigt werden sollen.
@@ -72,9 +72,9 @@ language = "de" -- default = "de" with the alternative version, only the options
 
 qual = 1 -- default = "1" = HD
 
--- 1 = HD  for DSL >= 6000
--- 2 = MD  for DSL >= 2000
--- 3 = SD  for DSL <= 2000
+-- 1 = HD  for DSL >= 6000 = 1280 x 720 px
+-- 2 = MD  for DSL >= 2000 =  720 x 406 px
+-- 3 = SD  for DSL <= 2000 =  640 x 360 px
 
 -- selection menu
 local subs = {
@@ -179,7 +179,6 @@ end
 function conv_url(_string)
 	if _string == nil then return _string end
        _string = string.gsub(_string,'\\','');
-       _string = string.gsub(_string,'master.m3u8','index_1_av.m3u8');
  	return _string
 end
 
@@ -225,6 +224,7 @@ function conv_str(_string)
 	_string = string.gsub(_string,'u00df','ß');
 	_string = string.gsub(_string,'u00fa','ú');
 	_string = string.gsub(_string,'u00dc','Ü');
+	_string = string.gsub(_string,'u00f9','ù');
 	_string = string.gsub(_string,'u00fa','ú');
 	_string = string.gsub(_string,'u00fb','û');
 	_string = string.gsub(_string,'u00dc','ü');
@@ -269,18 +269,18 @@ function fill_playlist(id)
 		if v[1] == id then
 			sm:hide()
 			nameid = v[2]	
-			local data = getdata('https://www.arte.tv/api/rproxy/emac/v3/' .. language .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
---			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. language ,nil) -- Version alternativ = source alternativ
+			local data = getdata('https://www.arte.tv/api/rproxy/emac/v3/' .. langue .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
+--			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. langue ,nil) -- Version alternativ = source alternativ
 				if data then
-				    for  page, title, subtitle, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
--- 				    for  page, title, subtitle, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"durationSeconds.-"teaserText":"(.-)",.-}')  do -- Version alternativ 
+				    for  seite, title, subtitle, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
+-- 				    for  seite, title, subtitle, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"durationSeconds.-"teaserText":"(.-)",.-}')  do -- Version alternativ 
 					if subtitle == "null" or subtitle == " null" or subtitle == nil then
 						title = title
 					else
 						title = title .. " - " .. subtitle
 					end
 					if title then
-						add_stream( conv_str(title), page , conv_str(teaser) ) 
+						add_stream( conv_str(title), seite , conv_str(teaser) ) 
 				        end
 				    end
 				else
@@ -353,125 +353,51 @@ function select_playitem()
     end
 
     local vPlay = nil
-    local page=func[p[pmid].access](p[pmid].url)
-    if page~=nil then
+    local seite=func[p[pmid].access](p[pmid].url)
+    if seite~=nil then
       if  vPlay  ==  nil  then
 	vPlay  =  video.new()
       end
-	if page then
-		local js_page = getdata('https://api.arte.tv/api/player/v1/config/'.. language .. '/'.. page .. '?lifeCycle=1',nil) -- apicall
-                if js_page ~= nil then
-			local jnTab = json:decode(js_page)
-			local video_url = nil
-			if jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HTTPS_SQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.HTTPS_SQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HLS_XQ_1 then 
-				video_url = jnTab.videoJsonPlayer.VSR.HLS_XQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HTTP_MP4_SQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.HTTP_MP4_SQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HTTP_SQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.HTTP_SQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HLS_SQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.HLS_SQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HLS_XQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.HLS_XQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.HLS_EQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.HLS_EQ_1.url
-			elseif jnTab.videoJsonPlayer.VSR and jnTab.videoJsonPlayer.VSR.RTMP_SQ_1 then
-				video_url = jnTab.videoJsonPlayer.VSR.RTMP_SQ_1.streamer .. jnTab.videoJsonPlayer.VSR.RTMP_SQ_1.url
-			end
 
-			if jnTab.videoJsonPlayer.VTI then
-				title = jnTab.videoJsonPlayer.VTI
-			else
-				title = p[pmid].title 
-			end
+	if seite then
+		local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/'.. seite .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang='.. langue,nil)
+                if js_seite ~= nil then
+		if qual < 2 then -- = HD
+				video_url  =  js_seite:match('streams.-"url".-"url".-"url": "(http.-mp4)"')
+		elseif qual > 2 then -- = qual = 3 = SD
+				video_url  =  js_seite:match('streams.-"url": "(http.-mp4)"')
+		else  -- = qual = 2 = MD
+				video_url  =  js_seite:match('streams.-"url".-"url": "(http.-mp4)"')
+		end
 
-			if jnTab.videoJsonPlayer.subtitle then
-				subtitle = jnTab.videoJsonPlayer.subtitle
-			else
-				subtitle = " "
-			end
+                        duration = js_seite:match('"formated_duration":.-"(.-)"')
+                        title = p[pmid].title 
+                        epg = p[pmid].epg 
 
 				local videoplayed = false
 				if title and video_url then
-					if jnTab.videoJsonPlayer.VDE then
-						    epg = jnTab.videoJsonPlayer.VDE 
-                                                    if language == "fr" then
-						         epg = epg .. '\n\nTemps de lecture (mn.) : ' .. jnTab.videoJsonPlayer.VDU 
-						    elseif language == "de" then
-						         epg = epg .. '\n\nSpieldauer (Min.) : ' .. jnTab.videoJsonPlayer.VDU
-                                                    elseif language == "en" then
-						         epg = epg .. '\n\nPlaying time (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "es" then
-						         epg = epg .. '\n\nDuración (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "pl" then
-						         epg = epg .. '\n\nCzas (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "it" then
-						         epg = epg .. '\n\nDurata (min.) : ' .. jnTab.videoJsonPlayer.VDU
+                                                    if langue == "fr" then
+						         epg = epg .. '\n\nTemps de lecture : ' .. duration
+						    elseif langue == "de" then
+						         epg = epg .. '\n\nSpieldauer : ' .. duration
+						    elseif langue ~=  "fr" or langue ~=  "de" then
+						         epg = epg .. '\n\nDuration : ' .. duration
                                                     end
-						vPlay:setInfoFunc("epgInfo")
 
- 					elseif jnTab.videoJsonPlayer.V7T then
-						    epg = jnTab.videoJsonPlayer.V7T 
-                                                    if language == "fr" then
-						         epg = epg .. '\n\nTemps de lecture (mn.) : ' .. jnTab.videoJsonPlayer.VDU 
-						    elseif language == "de" then
-						         epg = epg .. '\n\nSpieldauer (Min.) : ' .. jnTab.videoJsonPlayer.VDU
-                                                    elseif language == "en" then
-						         epg = epg .. '\n\nPlaying time (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "es" then
-						         epg = epg .. '\n\nDuración (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "pl" then
-						         epg = epg .. '\n\nCzas (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "it" then
-						         epg = epg .. '\n\nDurata (min.) : ' .. jnTab.videoJsonPlayer.VDU
-                                                    end
 						vPlay:setInfoFunc("epgInfo")
- 					else
-						    epg = p[pmid].epg 
-                                                    if language == "fr" then
-						         epg = epg .. '\n\nTemps de lecture (mn.) : ' .. jnTab.videoJsonPlayer.VDU 
-						    elseif language == "de" then
-						         epg = epg .. '\n\nSpieldauer (Min.) : ' .. jnTab.videoJsonPlayer.VDU
-                                                    elseif language == "en" then
-						         epg = epg .. '\n\nPlaying time (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "es" then
-						         epg = epg .. '\n\nDuración (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "pl" then
-						         epg = epg .. '\n\nCzas (min.) : ' .. jnTab.videoJsonPlayer.VDU
-						    elseif language == "it" then
-						         epg = epg .. '\n\nDurata (min.) : ' .. jnTab.videoJsonPlayer.VDU
-                                                    end
-						vPlay:setInfoFunc("epgInfo")
-					end
 					videoplayed = true
---					vPlay:PlayFile ("arte concert", conv_url(video_url), conv_str(title) ,conv_url(video_url)); -- with display of the web address when playing on the infobar
-					vPlay:PlayFile ("arte concert", conv_url(video_url), conv_str(title) ); -- without displaying the web address when playing on the infobar = default
+					vPlay:PlayFile ("arte HD", conv_url(video_url), conv_str(title) );
 				end
 
 				if videoplayed == false then
 					local infotext = ""
-					local t = os.time()
-					if jnTab.videoJsonPlayer.custom_msg and jnTab.videoJsonPlayer.custom_msg.type == "error" then
-						infotext = jnTab.videoJsonPlayer.custom_msg.msg
-					elseif datetotime(jnTab.videoJsonPlayer.VRA) > t or t > datetotime(jnTab.videoJsonPlayer.VRU) then
-						local d1,m1,y1,h1,M1,s1 = jnTab.videoJsonPlayer.VRA:match("(%d+).(%d+).(%d+) (%d+):(%d+):(%d+)")
-						local d2,m2,y2,h2,M2,s2 = jnTab.videoJsonPlayer.VRU:match("(%d+).(%d+).(%d+) (%d+):(%d+):(%d+)") 
-                                                    if language == "fr" then
-						         infotext = "La vidéo est seulement " .. d1 .. "." ..  m1 .. "." ..  y1 .. " - " .. h1 .. ":" ..  M1 .. " heures à " .. d2 .. "." ..  m2 .. "." ..  y2 .. " - " .. h2 .. ":" ..  M2 .. " heures disponible."
-                                                    elseif language == "de" then
-						         infotext = "Video ist nur von " .. d1 .. "." ..  m1 .. "." ..  y1 .. " - " .. h1 .. ":" ..  M1 .. " Uhr bis " .. d2 .. "." ..  m2 .. "." ..  y2 .. " - " .. h2 .. ":" ..  M2 .. " Uhr verfügbar."
-                                                    elseif language == "en" then
-						         infotext = "Video is only from " .. d1 .. "." ..  m1 .. "." ..  y1 .. " - " .. h1 .. ":" ..  M1 .. " clock to " .. d2 .. "." ..  m2 .. "." ..  y2 .. " - " .. h2 .. ":" ..  M2 .. " watch available."
-                                                    elseif language == "es" then
-						         infotext = "Video es única " .. d1 .. "." ..  m1 .. "." ..  y1 .. " - " .. h1 .. ":" ..  M1 .. " reloj hacia arriba " .. d2 .. "." ..  m2 .. "." ..  y2 .. " - " .. h2 .. ":" ..  M2 .. " reloj."
-                                                    elseif language == "pl" then
-						         infotext = "Film jest tylko " .. d1 .. "." ..  m1 .. "." ..  y1 .. " - " .. h1 .. ":" ..  M1 .. " zegar up " .. d2 .. "." ..  m2 .. "." ..  y2 .. " - " .. h2 .. ":" ..  M2 .. " zegara."
-                                                    elseif language == "it" then
-						         infotext = "Il video è disponibile solo da " .. d1 .. "." ..  m1 .. "." ..  y1 .. " - " .. h1 .. ":" ..  M1 .. " orologio a " .. d2 .. "." ..  m2 .. "." ..  y2 .. " - " .. h2 .. ":" ..  M2 .. " orologio."
+                                                    if langue == "fr" then
+						         infotext = "La vidéo sélectionnée est actuellement indisponible."
+                                                    elseif langue == "de" then
+						         infotext = "Das ausgewählte Video ist zur Zeit nicht verfügbar."
+                                                    elseif langue ~=  "fr" or langue ~=  "de" then
+						         infotext = "The selected video is currently unavailable."
                                                     end
-					end
 					local h = hintbox.new{caption="Information", text=infotext}
 					h:paint()
 					repeat
