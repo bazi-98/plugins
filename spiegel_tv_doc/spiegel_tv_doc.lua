@@ -1,6 +1,6 @@
 --[[
 	SpiegelTV-App
-	Vers.: 0.5
+	Vers.: 0.6
 	Copyright (C) 2020, fritz
 
 	License: GPL
@@ -173,10 +173,11 @@ function fill_playlist()
 			end
 			if url and title then
 				add_stream(conv_str(title), url, date, conv_str(description) )
+--				add_stream(conv_str(title), url, url, conv_str(description) )-- only for testing
 			end
             end
 	end
-end
+end 
 
 -- epg-Fenster
 local epg = ""
@@ -252,7 +253,8 @@ function select_playitem()
 		title = p[pmid].title
 	end
 	local js_data = getdata(url,nil)
-	local url1 = js_data:match('mediaId&.-&.-;(.-)&')
+--	local url1 = js_data:match('mediaId&.-&.-;(.-)&')
+	local url1 = js_data:match('ediaId&.-&.-;(.-)&')
 
 	if url1 == nil then
 		print("Video URL not  found") 
