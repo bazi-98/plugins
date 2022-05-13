@@ -1,8 +1,8 @@
 --[[
 	N24 DOKU
-	Vers.: 0.1
+	Vers.: 0.2
 	Copyright
-        (C) 2019  bazi98
+        (C) 2019-2022  bazi98
 
         App Description:
         There the player links are respectively read about the recent documentaries of the German Television "N24 DOKU"
@@ -220,7 +220,7 @@ function select_playitem()
       end
 
 	local js_data = getdata(url,nil)
-	local video_url = js_data:match('"m3u8".-"src":"(http.-mp4)"') 
+	local video_url = js_data:match('"sources".-"src".-(http.-mp4)","extension') 
 
 	local epg1 = js_data:match('articleBody".-:.-"<p>(.-)</p>') 
 	if epg1 == nil then
