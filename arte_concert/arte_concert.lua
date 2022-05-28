@@ -280,8 +280,8 @@ function fill_playlist(id)
 						title = title .. " - " .. subtitle
 					end
 					if title then
---						add_stream( conv_str(title), seite , conv_str(teaser) ) 
-						add_stream( conv_str(title), seite , seite ) -- only for testing
+						add_stream( conv_str(title), seite , conv_str(teaser) ) 
+--						add_stream( conv_str(title), seite , seite ) -- only for testing
 				        end
 				    end
 				else
