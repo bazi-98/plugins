@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.6.0 vom 05.05.2022
+	Vers.: 1.6.1 vom 28.05.2022
 	Copyright (C) 2016-2022, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -272,7 +272,7 @@ function fill_playlist(id)
 			local data = getdata('https://www.arte.tv/api/rproxy/emac/v3/' .. langue .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
 --			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. langue ,nil) -- Version alternativ = source alternativ
 				if data then
-				    for  seite, title, subtitle, teaser in data:gmatch('{"id":".-.-"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
+				    for  seite, title, subtitle, teaser in data:gmatch('{"id":".-deeplink":"arte://program/(.-)","title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
 -- 				    for  seite, title, subtitle, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"durationSeconds.-"teaserText":"(.-)",.-}')  do -- Version alternativ 
 					if subtitle == "null" or subtitle == " null" or subtitle == nil then
 						title = title
@@ -280,7 +280,8 @@ function fill_playlist(id)
 						title = title .. " - " .. subtitle
 					end
 					if title then
-						add_stream( conv_str(title), seite , conv_str(teaser) ) 
+--						add_stream( conv_str(title), seite , conv_str(teaser) ) 
+						add_stream( conv_str(title), seite , seite ) -- only for testing
 				        end
 				    end
 				else
