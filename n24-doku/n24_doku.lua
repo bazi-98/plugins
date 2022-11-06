@@ -1,6 +1,6 @@
 --[[
 	N24 DOKU
-	Vers.: 0.2
+	Vers.: 0.3
 	Copyright
         (C) 2019-2022  bazi98
 
@@ -140,7 +140,8 @@ function fill_playlist(id) --- > begin playlist
 					seite = 'https://www.welt.de' .. link 
 					epg1 = item:match('c%-epg%-item__text">(.-)</div>')
 					if seite and title then
-						add_stream( conv_str(title), seite, conv_str(epg1))
+						add_stream( conv_str(title), seite, conv_str(epg1)) -- default
+--						add_stream( conv_str(title), seite, seite) -- only for testing
 					end
 				end
 			end
@@ -220,7 +221,14 @@ function select_playitem()
       end
 
 	local js_data = getdata(url,nil)
-	local video_url = js_data:match('"sources".-"src".-(http.-mp4)","extension') 
+	video_url = js_data:match('<video.-mpegURL.-src.-"(https://weltn24lfthumb.-mp4)"') 
+	if video_url == nil then
+	   video_url = js_data:match('<video.-source.-src.-"(https://weltn24lfthumb.-mp4)"') 
+	end
+	if video_url == nil then
+		print("Video URL not  found")
+ 		os.execute('msgbox icon=/usr/share/tuxbox/neutrino/icons/info.png title="WELT HD" size=26 timeout=60 popup="Die Sendung ist aus rechtlichen Gründen online nicht verfügbar"');
+	end
 
 	local epg1 = js_data:match('articleBody".-:.-"<p>(.-)</p>') 
 	if epg1 == nil then
