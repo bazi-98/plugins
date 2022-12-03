@@ -1,6 +1,6 @@
 --[[
 	Netzkino (light -free)
-	Vers.: 0.5
+	Vers.: 0.6
 	Copyright (C) 2020-22  fritz
 	Copyright (C) 2009  for the Base64 encoder/decoder function by Alex Kloss
 
@@ -154,20 +154,19 @@ function fill_playlist(id) --- > begin playlist
 	for i,v in  pairs(subs) do
 		if v[1] == id then
 			sm:hide()
-			nameid = v[2]	
+			nameid = v[2]
 			local data  = getdata('http://api.netzkino.de.simplecache.net/capi-2.0a/categories/' .. id .. '.json?d=www&l=de-DE&v=unknown',nil)
 			if data then
 				for  item in data:gmatch('{(.-Streaming.-)}')  do
-					local title,description,link = item:match(',"title":"(.-)","content":"(.-)",.-"Streaming":%["(.-)"%],') 
+					local title,description,link = item:match(',"title":"(.-)","content":"(.-)",.-,"Streaming".-%["(.-)"%],') -- ,"Streaming":["Atlas_Film/Jane_Doe"],
 					if description == nil or description == '' then
---					description = item:match('"Stars":%["(.-)"%],"') 
---					else
 						description = "Netzkino stellt für diese Sendung keinen Begleittext bereit"
-					end
-					seite = 'http://netzkino_and-vh.akamaihd.net/i/' .. link .. '.mp4/master.m3u8'
---					seite = 'https://pmd.netzkino-seite.netzkino.de/' .. link .. '.mp4' -- alternativ Stream als mp4 -- only for testing
+					end -- https://pmd.netzkino-seite.netzkino.de/Lighthouse/Boone_-_Der_Kopfgeldjaeger.mp4
+--					seite = 'http://netzkino_and-vh.akamaihd.net/i/' .. link .. '.mp4/master.m3u8' -- only for testing
+					seite = 'https://pmd.netzkino-seite.netzkino.de/' .. link .. '.mp4' -- alternativ Stream als mp4 -- default
 					if seite and title then
-						add_stream( conv_str(title), seite, conv_str(description))
+						add_stream( conv_str(title), seite, conv_str(description)) -- default
+--						add_stream( conv_str(title), seite, seite) -- only for testing
 					end
 				end
 			end
@@ -245,26 +244,14 @@ function select_playitem()
 	vPlay  =  video.new()
       end
 
-	local js_data = getdata(url,nil)
-	local video_url = js_data:match('url(.-)">') -- id="sdc-article-video-
-	if video_url == nil then
-		video_url = p[pmid].url
-	end
-
-	local epg1 = js_data:match('epg"(.-)">') 
-	if epg1 == nil then
-		epg1 = p[pmid].from
-	end
-	local title = js_data:match('title""(.-)">')
-
-	if title == nil then
-		title = p[pmid].title
-	end
+	video_url = p[pmid].url
+	epg1 = p[pmid].from
+        title = p[pmid].title
 
 	if video_url then 
 		epg = conv_str(title) .. '\n\n' .. conv_str(epg1) 
 		vPlay:setInfoFunc("epgInfo")
-                url = video_url
+                url = video_url .. "?#User-Agent=AppleCoreMedia"
 	vPlay:PlayFile("Netzkino",url,conv_str(title));
 	else
 		print("Video URL not found")
