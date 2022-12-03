@@ -161,7 +161,7 @@ function fill_playlist(id) --- > begin playlist
 					local title,description,link = item:match(',"title":"(.-)","content":"(.-)",.-,"Streaming".-%["(.-)"%],') -- ,"Streaming":["Atlas_Film/Jane_Doe"],
 					if description == nil or description == '' then
 						description = "Netzkino stellt für diese Sendung keinen Begleittext bereit"
-					end -- https://pmd.netzkino-seite.netzkino.de/Lighthouse/Boone_-_Der_Kopfgeldjaeger.mp4
+					end
 --					seite = 'http://netzkino_and-vh.akamaihd.net/i/' .. link .. '.mp4/master.m3u8' -- only for testing
 					seite = 'https://pmd.netzkino-seite.netzkino.de/' .. link .. '.mp4' -- alternativ Stream als mp4 -- default
 					if seite and title then
