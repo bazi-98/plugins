@@ -1,10 +1,10 @@
 --[[
 	WDR:Rockpalast
-	Vers.: 1.02
+	Vers.: 1.03
 
 	Copyright (C): 
         2016: bazi98 & SatBaby
-        2017 - 2021  bazi98
+        2017 - 2023  bazi98
 
         App Description:
         The program evaluates Rockpalst-Videos from the WDR mediathek and provides 
@@ -29,13 +29,18 @@
 
         Copyright (C) for the linked videos and for the Rockpalast-Logo by WDR or the respective owners!
         Copyright (C) for the Base64 encoder/decoder function by Alex Kloss <alexthkloss@web.de>, licensed under the terms of the LGPL
+
+        Evaluation planned for the future:
+        https://api.ardmediathek.de/page-gateway/widgets/ard/asset/Y3JpZDovL3dkci5kZS9Sb2NrcGFsYXN0?pageNumber=0&pageSize=99
 ]]
 
 local json = require "json"
 
 -- Auswahl 
 local subs = {
-	{'rockpalast-100', '2021'},
+--	{'uebersicht-events-102', 'Test'}, -- testing stuff, default is disabled
+	{'rockpalast-index-startseite-100', 'aktuell'},
+	{'rockpalast-100', '2021/22'},
 	{'rockpalast266', '2020'},
 	{'rockpalast264', '2019'},
 	{'rockpalast-156', '2018'},
