@@ -1,6 +1,6 @@
 --[[
 	Welt-Mediathek
-	Vers.: 0.2
+	Vers.: 0.1
 	Copyright
         (C) 2023  fritz
 
@@ -38,7 +38,7 @@ local subs = {
 	{'https://www.welt.de/mediathek/magazin/', 'Magazin'},
 	{'https://www.welt.de/mediathek/dokumentation/natur-und-wildlife', 'Natur und Wildlife'},
 	{'https://www.welt.de/mediathek/dokumentation/space/', 'Space'},
-	{'https://www.welt.de/mediathek/reportage/katastrophen/', 'Katastrophen'},
+	{'https://www.welt.de/mediathek/dokumentation/katastrophen/', 'Katastrophen'},
 	{'https://www.welt.de/mediathek/dokumentation/technik-und-wissen', 'Technik und Wissen'}
 }
 
