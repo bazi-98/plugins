@@ -1,6 +1,6 @@
 --[[
 	Welt-Mediathek
-	Vers.: 0.1
+	Vers.: 0.4
 	Copyright
         (C) 2023  fritz
 
@@ -33,13 +33,19 @@ local json = require "json"
 -- Auswahl
 local subs = {
 	{'https://www.welt.de/mediathek/reportage/automobile/', 'Automobile'},
-	{'https://www.welt.de/mediathek/dokumentation/gesellschaft', 'Gesellschaft'},
+	{'https://www.welt.de/mediathek/reportage/gesellschaft', 'Gesellschaft (Reportagen)'},
+	{'https://www.welt.de/mediathek/dokumentation/gesellschaft', 'Gesellschaft (Dokumentationen)'},
+	{'https://www.welt.de/mediathek/serie/history', 'History (Serie)'},
 	{'https://www.welt.de/mediathek/dokumentation/history', 'History'},
+	{'https://www.welt.de/mediathek/dokumentation/technik-und-wissen/lost-places/', 'Lost Places'},
 	{'https://www.welt.de/mediathek/magazin/', 'Magazin'},
+	{'https://www.welt.de/mediathek/serie/mystery', 'Mystery'},
+	{'https://www.welt.de/mediathek/serie/natur-und-wildlife', 'Natur und Wildlife (Serie)'},
 	{'https://www.welt.de/mediathek/dokumentation/natur-und-wildlife', 'Natur und Wildlife'},
 	{'https://www.welt.de/mediathek/dokumentation/space/', 'Space'},
 	{'https://www.welt.de/mediathek/dokumentation/katastrophen/', 'Katastrophen'},
-	{'https://www.welt.de/mediathek/dokumentation/technik-und-wissen', 'Technik und Wissen'}
+	{'https://www.welt.de/mediathek/reportage/technik-und-wissen', 'Technik und Wissen (Reportagen)'},
+	{'https://www.welt.de/mediathek/dokumentation/technik-und-wissen', 'Technik und Wissen (Dokumentationen)'}
 }
 
 --Objekte
@@ -132,10 +138,15 @@ function fill_playlist(id) --- > begin playlist
 			nameid = v[2]	
 			local data  = getdata( id ,nil)
 			if data then
-				for  item in data:gmatch('Topic">(.-href.-)</li>')  do
-					local link,title = item:match('<a href="(/mediathek/.-html)".-title="(.-)" class') 
+				for  item in data:gmatch('>Video</span>.-Topic">(.-href.-title.-)span> </li>')  do
+					local link,title = item:match('<a href="(/mediathek/.-html)".-title="(.-)"') -- default 
+--					local link,title = item:match('</span>.-<a href="(/mediathek/.-html)".-title="(.-)"') -- only for testing , <a href="/mediathek/
 					seite = 'https://www.welt.de' .. link 
-					duration = item:match('videoDuration">(.-)</span>')
+					if link == nil then
+					        local link,title = item:match('<a href="(/mediathek/reportage/gesellschaft.-html)".-title="(.-)"')  
+						seite = 'https://www.welt.de' .. link
+					end
+					duration = item:match('videoDuration">(.-)</')
 					if duration == nil then
 						duration = "unbekannt"
 					end
