@@ -1,7 +1,7 @@
 --[[
 	arte 7
-	Vers.: 2.1.0 vom 04.05.2021 -- dirty hardcore fix
-	Copyright (C) 2016-2022, bazi98
+	Vers.: 2.2.0 vom 23.08.2023
+	Copyright (C) 2016-2023, bazi98
         With many references and codessniplets of SatBaby and micha-bbg, great thank you from me to them.
 
         App Description:
@@ -30,8 +30,7 @@
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	Free Software Foundation, or see <http://www.gnu.org/licenses/>.
 
         Copyright (C) for the linked videos and for the arte-Logo by arte or the respective owners!
         Copyright (C) for the Base64 encoder/decoder function by Alex Kloss <alexthkloss@web.de>, licensed under the terms of the LGPL
@@ -57,11 +56,22 @@ langue = "de" -- normal = "de"
      Avec l'est défini « qual » à quelle résolution les vidéos à afficher.
 ]]
 
-qual = 1 -- normal = "1"
+qual = 1 -- default = "1" = UHD
 
--- 1 = HD  für / pour DSL >= 6000
--- 2 = MD  für / pour DSL >= 2000
--- 3 = SD  für / pour DSL <= 2000
+-- 1 = UHD  for DSL >= 16000 = 3840 x 2160 px
+-- 2 =  HD  for DSL <= 16000 = max. 1920 x 1080 px or for non-uhd-stb
+
+function translate_langue(_string)
+	if _string == nil then return _string end
+		if langue == "de" then
+				_string = string.gsub(_string,'de','Deutsch');
+				_string = string.gsub(_string,'fr','Französisch');
+		else        
+				_string = string.gsub(_string,'de','Allemand');
+				_string = string.gsub(_string,'fr','Français');
+		end
+	return _string
+end 
 
 -- Auswahlmenue / menu de sélection
 local subs = {
@@ -172,6 +182,8 @@ end
 function conv_url(_string)
 	if _string == nil then return _string end
        _string = string.gsub(_string,'\\','');
+       _string = string.gsub(_string,'dash','hls');
+       _string = string.gsub(_string,'.mpd','_XQ.m3u8');
  	return _string
 end
 
@@ -258,7 +270,7 @@ function fill_playlist(id)
 	for i,v in  pairs(subs) do
 		if v[1] == id then
 			sm:hide()
-			nameid = v[2]	
+			nameid = v[2] -- http://www.arte.tv/hbbtv-mw/api/1/epg/2023-08-23?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=de	
 			local data  = getdata('http://www.arte.tv/hbbtv-mw/api/1/epg/' .. id .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=' .. langue ,nil)
 			if data then
 				for  item in data:gmatch('"id"(.-)"geoblocking"')  do
@@ -323,7 +335,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 		elseif msg == RC.down or msg == RC.page_down then
 			ct:scroll{dir="down"};
 		end
-	until msg == RC.ok or msg == RC.home
+	until msg == RC.ok or msg == RC.home or msg == RC.info
 	wh:hide()
 end
 
@@ -350,15 +362,30 @@ function select_playitem()
 
 	if seite then
 		local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/'.. seite .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang='.. langue,nil)
+        -- e.g. local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/109358-013-A?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=de',nil)
                 if js_seite ~= nil then
-		if qual < 2 then -- = HD
-				video_url  =  js_seite:match('streams.-"url".-"url".-"url": "(http.-mp4)"')
-		elseif qual > 2 then -- = qual = 3 = SD
-				video_url  =  js_seite:match('streams.-"url": "(http.-mp4)"')
-		else  -- = qual = 2 = MD
-				video_url  =  js_seite:match('streams.-"url".-"url": "(http.-mp4)"')
-		end
+ 		        video_url  =  js_seite:match('"url": "(https://arteptweb.-mp4)"')
+		        video_url2  = js_seite:match('"url": "(https://arte.-)"')-- by UHD streams, the url is https://arte-uhd ... 
+                        m3u8_url = conv_url(video_url2)
+				if video_url2 ~= video_url then
+                                      local videoUrl = nil
+                                      local audioUrl = nil
+                                      local host = m3u8_url:match('([%a]+[:]?//[_%w%-%.]+)/')
+                                      local lastpos = (m3u8_url:reverse()):find("/")
+                                      local hosttmp = m3u8_url:sub(1,#m3u8_url-lastpos)
+                                      if hosttmp then
+                                      	host = hosttmp .."/"
+                                      end
 
+                                      local data = getdata(m3u8_url)
+                                      video_url  =  data:match('RESOLUTION%=3840x2160.-(videos/.-m)3u8\n')
+                                      if video_url == nil or qual > 1 then
+                                      	video_url  =  data:match('RESOLUTION%=1920x1080.-(videos/.-m)3u8\n')
+                                      end
+                                      video_url  =  host .. video_url .. "p4"
+                                      audio_url  =  data:match('TYPE%=AUDIO.GROUP%-ID=".-URI="(audios/.-m)3u8"\n')
+                                      audio_url  =  host .. audio_url .. "p4"
+				end
                         duration = js_seite:match('"formated_duration":.-"(.-min)"')
                         title = p[pmid].title 
                         epg = p[pmid].epg 
@@ -368,11 +395,13 @@ function select_playitem()
                                                     if langue == "fr" then
 						         epg = epg .. '\n\nTemps de lecture : ' .. duration
 						    elseif langue == "de" then
-						         epg = epg .. '\n\nSpieldauer : ' .. duration
+						         epg = epg .. '\n\nSpieldauer : ' .. duration -- default
+--						         epg = epg .. '\n\nSpieldauer : ' .. duration .. '\n\nUrl.: ' .. m3u8_url -- only for testing
                                                     end
 						vPlay:setInfoFunc("epgInfo")
 					videoplayed = true
-					vPlay:PlayFile ("arte HD", conv_url(video_url), uml_str(title) );
+--					vPlay:PlayFile ("arte", video_url, uml_str(title) ); -- only for testing
+					vPlay:PlayFile ("arte", video_url, uml_str(title),"",audio_url or "") -- default
 				end
 
 				if videoplayed == false then
