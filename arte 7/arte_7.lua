@@ -1,6 +1,6 @@
 --[[
 	arte 7
-	Vers.: 2.2.0 vom 23.08.2023
+	Vers.: 2.2.1 vom 24.08.2023
 	Copyright (C) 2016-2023, bazi98
         With many references and codessniplets of SatBaby and micha-bbg, great thank you from me to them.
 
@@ -58,8 +58,9 @@ langue = "de" -- normal = "de"
 
 qual = 1 -- default = "1" = UHD
 
--- 1 = UHD  for DSL >= 16000 = 3840 x 2160 px
--- 2 =  HD  for DSL <= 16000 = max. 1920 x 1080 px or for non-uhd-stb
+-- 1 = UHD  for DSL >= 16000 = 3840 x 2160 px for UHD-STB with second_file_name und url2 support
+-- 2 = FHD  for DSL >=  6000 = 1920 x 1080 px or for non-UHD-STB with second_file_name und url2 support 
+-- 3 =  HD  for DSL <=  6000 = 1280 x  720 px or for non-FHD-STB with second_file_name und url2 support
 
 function translate_langue(_string)
 	if _string == nil then return _string end
@@ -265,13 +266,28 @@ function uml_str(_string)
 	return _string
 end 
 
+-- Duration
+function sec_to_min(_string)
+	local seconds = tonumber(_string) -- arte indicates the playing time in seconds
+		if seconds <= 0 then
+		return "00:00:00";
+	else
+		hours = string.format("%02.f", math.floor(seconds/3600));
+		mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
+		secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
+--		return hours..":"..mins..":"..secs -- only for testing, hours and minutes
+		return mins.. " Min."              -- only minutes are displayed
+	end
+end
+
 function fill_playlist(id)
 	p = {}
 	for i,v in  pairs(subs) do
 		if v[1] == id then
 			sm:hide()
-			nameid = v[2] -- http://www.arte.tv/hbbtv-mw/api/1/epg/2023-08-23?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=de	
-			local data  = getdata('http://www.arte.tv/hbbtv-mw/api/1/epg/' .. id .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=' .. langue ,nil)
+			nameid = v[2]	
+			local data  = getdata(basisurl ..'/hbbtv-mw/api/1/epg/' .. id .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=' .. langue ,nil)
+                -- e.g. local data  = getdata('http://www.arte.tv/hbbtv-mw/api/1/epg/2023-08-23?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=de ,nil)
 			if data then
 				for  item in data:gmatch('"id"(.-)"geoblocking"')  do
 					title, subtitle, seite, description, code, label = item:match('"title":.-"(.-)", "subtitle":(.-),.-"program_id":.-"(.-)",.-"description":.-"(.-)",.-"code": "(FULL_VIDEO)",.-"playable":.-(true),.-"video_url"') 
@@ -335,7 +351,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 		elseif msg == RC.down or msg == RC.page_down then
 			ct:scroll{dir="down"};
 		end
-	until msg == RC.ok or msg == RC.home or msg == RC.info
+	until msg == RC.ok or msg == RC.home
 	wh:hide()
 end
 
@@ -361,13 +377,13 @@ function select_playitem()
       end
 
 	if seite then
-		local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/'.. seite .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang='.. langue,nil)
-        -- e.g. local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/109358-013-A?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang=de',nil)
+                local js_seite = getdata('https://api.arte.tv/api/player/v2/config/' .. langue .. '/' .. seite ,nil)
+        -- e.g. local js_seite = getdata('https://api.arte.tv/api/player/v2/config/de/109358-013-A' ,nil)
                 if js_seite ~= nil then
- 		        video_url  =  js_seite:match('"url": "(https://arteptweb.-mp4)"')
-		        video_url2  = js_seite:match('"url": "(https://arte.-)"')-- by UHD streams, the url is https://arte-uhd ... 
+ 		        video_url  =  js_seite:match('"url": "(https://arteptweb.-mp4)"') -- 720p
+		        video_url2  = js_seite:match('"streams".-"url":"(https.-)"')-- only for testing m3u8-Url with Full HD an/or UHD
                         m3u8_url = conv_url(video_url2)
-				if video_url2 ~= video_url then
+				if video_url2 ~= video_url or video_url == nil then
                                       local videoUrl = nil
                                       local audioUrl = nil
                                       local host = m3u8_url:match('([%a]+[:]?//[_%w%-%.]+)/')
@@ -378,15 +394,25 @@ function select_playitem()
                                       end
 
                                       local data = getdata(m3u8_url)
-                                      video_url  =  data:match('RESOLUTION%=3840x2160.-(videos/.-m)3u8\n')
+                                      if qual < 2 then
+                                      	video_url  =  data:match('RESOLUTION%=3840x2160.-\n(%a.-s/.-m)3u8\n')
+                                      end
                                       if video_url == nil or qual > 1 then
-                                      	video_url  =  data:match('RESOLUTION%=1920x1080.-(videos/.-m)3u8\n')
+                                      	video_url  =  data:match('RESOLUTION%=1920x1080.-\n(%a.-s/.-m)3u8\n')
+                                      end
+                                      if video_url == nil or qual > 2 then
+                                      	video_url  =  data:match('RESOLUTION%=1280x720.-\n(%a.-s/.-m)3u8\n')
                                       end
                                       video_url  =  host .. video_url .. "p4"
-                                      audio_url  =  data:match('TYPE%=AUDIO.GROUP%-ID=".-URI="(audios/.-m)3u8"\n')
+                                      audio_url  =  data:match('TYPE%=AUDIO.GROUP%-ID=".-URI="(%a.-s/.-m)3u8"\n')
                                       audio_url  =  host .. audio_url .. "p4"
 				end
                         duration = js_seite:match('"formated_duration":.-"(.-min)"')
+				if duration == nil then
+                        		duration = js_seite:match('"duration":(%d.-),"')
+                        		duration = sec_to_min(duration)
+				end
+
                         title = p[pmid].title 
                         epg = p[pmid].epg 
 
@@ -396,11 +422,10 @@ function select_playitem()
 						         epg = epg .. '\n\nTemps de lecture : ' .. duration
 						    elseif langue == "de" then
 						         epg = epg .. '\n\nSpieldauer : ' .. duration -- default
---						         epg = epg .. '\n\nSpieldauer : ' .. duration .. '\n\nUrl.: ' .. m3u8_url -- only for testing
+--						         epg = epg .. '\n\nSpieldauer : ' .. duration .. '\n\nUrl.: ' .. m3u8_url -- only for testing with print Url on epgInfo
                                                     end
 						vPlay:setInfoFunc("epgInfo")
 					videoplayed = true
---					vPlay:PlayFile ("arte", video_url, uml_str(title) ); -- only for testing
 					vPlay:PlayFile ("arte", video_url, uml_str(title),"",audio_url or "") -- default
 				end
 
