@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.6.1 vom 28.05.2022
+	Vers.: 1.6.2 vom 25.08.2023
 	Copyright (C) 2016-2022, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -39,42 +39,17 @@
 
 local json  = require "json"
 
-basisurl= "http://concert.arte.tv/"
-
 --[[
     langue version
 
     Mit der Auswahl der Sprachoptionen wird die Sprache des Video und der Texte festgelegt.
     Avec le choix des options de langue langue de la vidéo et le texte du message est défini.
-    Selecting the langue in the langue options sets the langue of the videos and the message body.
-    Al seleccionar el idioma en las opciones de idioma, se establece el idioma de los videos y el cuerpo del mensaje.
-    Z wyborem opcji język wideo i tekst wiadomości jest ustawiony.
-    Selezionando la lingua nelle opzioni della lingua si imposta la lingua dei video e il corpo del messaggio.
 
     langue = "de" -- > deutsch
     langue = "fr" -- > français
-    langue = "en" -- > english
-    langue = "es" -- > español
-    langue = "pl" -- > polski
-    langue = "it" -- > italiano
 ]]
 
-langue = "de" -- default = "de" with the alternative api-version, only the options 'deutsch' or 'français' are possible 
-
---[[
-     Mit der Option "Qualität" wird festgelegt mit welcher Auflösung die Videos angezeigt werden sollen.
-     Avec l'est défini « qual » à quelle résolution les vidéos à afficher.
-     With the "qual" option is set with which the videos are to be displayed. 
-     Con la "qual" se define en lo que la resolución de los vídeos que se mostrarán.
-     „qual” definiuje w jakiej rozdzielczości filmy mają być wyświetlane. 
-     L'opzione "Qualità" determina la risoluzione con cui visualizzare i video.
-]]
-
-qual = 1 -- default = "1" = HD
-
--- 1 = HD  for DSL >= 6000 = 1280 x 720 px
--- 2 = MD  for DSL >= 2000 =  720 x 406 px
--- 3 = SD  for DSL <= 2000 =  640 x 360 px
+langue = "de" -- default = "de" 
 
 -- selection menu
 local subs = {
@@ -93,11 +68,8 @@ local subs = {
 --[[
      Die Abfrage ist durch arte auf 100 Sendungen begrenzt
      La requête est limitée à 100 éléments par arte
-     The query is limited to 100 items by arte
-     La consulta está limitada a 100 artículos por arte
-     Zapytanie jest ograniczone do 100 pozycji według arte
-     La query è limitata a 100 articoli per arte
 ]]
+
 limit = "100"
 
 function datetotime(s) -- > for example 23.11.2016
@@ -270,10 +242,8 @@ function fill_playlist(id)
 			sm:hide()
 			nameid = v[2]	
 			local data = getdata('https://www.arte.tv/api/rproxy/emac/v3/' .. langue .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
---			local data = getdata('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/v3/videos/subcategory/' .. id .. '/page/1/limit/' .. limit .. '/' .. langue ,nil) -- Version alternativ = source alternativ
 				if data then
 				    for  seite, title, subtitle, teaser in data:gmatch('{"id":".-deeplink":"arte://program/(.-)","title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
--- 				    for  seite, title, subtitle, teaser in data:gmatch('{"programId":"(.-)",.-"title":"(.-)",.-subtitle":(.-),"durationSeconds.-"teaserText":"(.-)",.-}')  do -- Version alternativ 
 					if subtitle == "null" or subtitle == " null" or subtitle == nil then
 						title = title
 					else
@@ -281,8 +251,7 @@ function fill_playlist(id)
 					end
 					if title then
 						add_stream( conv_str(title), seite , conv_str(teaser) ) 
---						add_stream( conv_str(title), seite , seite ) -- only for testing
-				        end
+-				        end
 				    end
 				else
 				    return nil
@@ -363,14 +332,7 @@ function select_playitem()
 	if seite then
 		local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/'.. seite .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang='.. langue,nil)
                 if js_seite ~= nil then
-		if qual < 2 then -- = HD
-				video_url  =  js_seite:match('streams.-"url".-"url".-"url": "(http.-mp4)"')
-		elseif qual > 2 then -- = qual = 3 = SD
-				video_url  =  js_seite:match('streams.-"url": "(http.-mp4)"')
-		else  -- = qual = 2 = MD
-				video_url  =  js_seite:match('streams.-"url".-"url": "(http.-mp4)"')
-		end
-
+		video_url  =  js_seite:match('streams.-"url": "(http.-mp4)"')
                         duration = js_seite:match('"formated_duration":.-"(.-)"')
                         title = p[pmid].title 
                         epg = p[pmid].epg 
