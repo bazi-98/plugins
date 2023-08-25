@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.6.2 vom 25.08.2023
+	Vers.: 1.6.2 from 25.08.2023
 	Copyright (C) 2016-2022, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -44,12 +44,20 @@ local json  = require "json"
 
     Mit der Auswahl der Sprachoptionen wird die Sprache des Video und der Texte festgelegt.
     Avec le choix des options de langue langue de la vidéo et le texte du message est défini.
+    Selecting the langue in the langue options sets the langue of the videos and the message body.
+    Al seleccionar el idioma en las opciones de idioma, se establece el idioma de los videos y el cuerpo del mensaje.
+    Z wyborem opcji język wideo i tekst wiadomości jest ustawiony.
+    Selezionando la lingua nelle opzioni della lingua si imposta la lingua dei video e il corpo del messaggio.
 
     langue = "de" -- > deutsch
     langue = "fr" -- > français
+    langue = "en" -- > english
+    langue = "es" -- > español
+    langue = "pl" -- > polski
+    langue = "it" -- > italiano
 ]]
 
-langue = "de" -- default = "de" 
+langue = "de" -- default = "de"  
 
 -- selection menu
 local subs = {
@@ -68,6 +76,10 @@ local subs = {
 --[[
      Die Abfrage ist durch arte auf 100 Sendungen begrenzt
      La requête est limitée à 100 éléments par arte
+     The query is limited to 100 items by arte
+     La consulta está limitada a 100 artículos por arte
+     Zapytanie jest ograniczone do 100 pozycji według arte
+     La query è limitata a 100 articoli per arte
 ]]
 
 limit = "100"
@@ -147,7 +159,7 @@ function decodeImage(b64Image)
 	return retImg
 end
 
--- convert stream address according to the best quality
+-- convert stream address
 function conv_url(_string)
 	if _string == nil then return _string end
        _string = string.gsub(_string,'\\','');
@@ -251,7 +263,7 @@ function fill_playlist(id)
 					end
 					if title then
 						add_stream( conv_str(title), seite , conv_str(teaser) ) 
--				        end
+				        end
 				    end
 				else
 				    return nil
@@ -332,7 +344,7 @@ function select_playitem()
 	if seite then
 		local js_seite = getdata('https://www.arte.tv/hbbtv-mw/api/1/player/'.. seite .. '?authorizedAreas=ALL,DE_FR,EUR_DE_FR,SAT&lang='.. langue,nil)
                 if js_seite ~= nil then
-		video_url  =  js_seite:match('streams.-"url": "(http.-mp4)"')
+		video_url  =  js_seite:match('streams.-"url": "(http.-arte.-mp4)"')
                         duration = js_seite:match('"formated_duration":.-"(.-)"')
                         title = p[pmid].title 
                         epg = p[pmid].epg 
