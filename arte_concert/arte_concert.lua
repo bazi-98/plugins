@@ -1,6 +1,6 @@
 --[[
 	arte concert
-	Vers.: 1.6.2 from 25.08.2023
+	Vers.: 1.6.5 from 09.09.2023
 	Copyright (C) 2016-2022, bazi98
 	Copyright (C) 2009 - for the Base64 encoder/decoder function by Alex Kloss
 
@@ -253,7 +253,7 @@ function fill_playlist(id)
 		if v[1] == id then
 			sm:hide()
 			nameid = v[2]	
-			local data = getdata('https://www.arte.tv/api/rproxy/emac/v3/' .. langue .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
+			local data = getdata('https://www.arte.tv/api/rproxy/emac/v4/' .. langue .. '/web/data/MOST_RECENT_SUBCATEGORY/?subCategoryCode=' .. id .. '&page=1&limit=' .. limit .. '',nil) -- Version default
 				if data then
 				    for  seite, title, subtitle, teaser in data:gmatch('{"id":".-deeplink":"arte://program/(.-)","title":"(.-)",.-subtitle":(.-),"shortDescription":"(.-)",.-}')  do -- Version default
 					if subtitle == "null" or subtitle == " null" or subtitle == nil then
