@@ -43,10 +43,12 @@ local json = require "json"
 local subs = {
 	{'neu-frontpage', 'Neu bei Netzkino'},
 	{'netzkinoplus', 'Netzkinoplus'},
+	{'netzkinoplus-highlights-frontpage', 'Netzkinoplus-Highlights'},
 	{'actionkino', 'Actionkino'},
 	{'animekino', 'Animekino'},
 	{'arthousekino', 'Arthousekino'},
 	{'asiakino', 'Asiakino'},
+	{'blockbuster-kultfilme-frontpage', 'Blockbuster & Kultfilme'},
 	{'dramakino', 'Dramakino'},
 	{'frontpage-exklusiv-frontpage', 'Exklusiv'},
 	{'netzkinoplus-highlights-frontpage', 'Highlights'},
@@ -54,10 +56,10 @@ local subs = {
 	{'liebesfilmkino', 'Liebesfilmkino'},
 	{'scifikino', 'Scifikino'},
 	{'kinderkino', 'Kinderkino'},
+	{'frontpage-exklusiv-frontpage', 'Die schönsten Märchen'},
 	{'spasskino', 'Spasskino'},
 	{'themenkino-genre', 'Themenkino'},
 	{'horrorkino', 'Horrorkino'},
-	{'themenkino-frontpage', 'Themenkino'},
 	{'mockbuster-frontpage', 'Mockbuster'},
 	{'top-20-frontpage', 'Top 20'},
 	{'kinoab18', 'Kino ab 18'},
@@ -156,17 +158,23 @@ function fill_playlist(id) --- > begin playlist
 			sm:hide()
 			nameid = v[2]
 			local data  = getdata('http://api.netzkino.de.simplecache.net/capi-2.0a/categories/' .. id .. '.json?d=www&l=de-DE&v=unknown',nil)
+--                                        e.g. http://api.netzkino.de.simplecache.net/capi-2.0a/categories/scifikino.json?d=www&l=de-DE&v=unknown
+
 			if data then
 				for  item in data:gmatch('{(.-Streaming.-)}')  do
 					local title,description,link = item:match(',"title":"(.-)","content":"(.-)",.-,"Streaming".-%["(.-)"%],') -- ,"Streaming":["Atlas_Film/Jane_Doe"],
 					if description == nil or description == '' then
 						description = "Netzkino stellt für diese Sendung keinen Begleittext bereit"
 					end
---					seite = 'http://netzkino_and-vh.akamaihd.net/i/' .. link .. '.mp4/master.m3u8' -- only for testing
-					seite = 'https://pmd.netzkino-seite.netzkino.de/' .. link .. '.mp4' -- alternativ Stream als mp4 -- default
+					seite = 'https://pmd.netzkino-entertaintv.netzkino.de/' .. link .. '.mp4' -- default
+--                          e.g.	         https://pmd.netzkino-entertaintv.netzkino.de/Great_Movies_NK/Die_letzten_Tempelritter_und_der_Schatz_des_Christentums.mp4
+--					seite = 'https://pmd.netzkino-and.netzkino.de/' .. link .. '.mp4'         -- alternativ,only for testing
+--                          e.g.	         https://pmd.netzkino-and.netzkino.de/Great_Movies_NK/Die_letzten_Tempelritter_und_der_Schatz_des_Christentums.mp4
+--					seite = 'https://pmd.netzkino-seite.netzkino.de/' .. link .. '.mp4'       -- alternativ,only for testing
+--                          e.g.	         https://pmd.netzkino-seite.netzkino.de/Great_Movies_NK/Die_letzten_Tempelritter_und_der_Schatz_des_Christentums.mp4
 					if seite and title then
+--						add_stream( conv_str(title), seite, seite)                 -- only for testing
 						add_stream( conv_str(title), seite, conv_str(description)) -- default
---						add_stream( conv_str(title), seite, seite) -- only for testing
 					end
 				end
 			end
