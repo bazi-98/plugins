@@ -1,6 +1,6 @@
 --[[
 	Welt-Mediathek
-	Vers.: 0.4
+	Vers.: 0.5
 	Copyright
         (C) 2023  fritz
 
@@ -38,9 +38,9 @@ local subs = {
 	{'https://www.welt.de/mediathek/serie/history', 'History (Serie)'},
 	{'https://www.welt.de/mediathek/dokumentation/history', 'History'},
 	{'https://www.welt.de/mediathek/dokumentation/technik-und-wissen/lost-places/', 'Lost Places'},
-	{'https://www.welt.de/mediathek/magazin/', 'Magazin'},
+--	{'https://www.welt.de/mediathek/magazin/', 'Magazin'},
 	{'https://www.welt.de/mediathek/serie/mystery', 'Mystery'},
-	{'https://www.welt.de/mediathek/serie/natur-und-wildlife', 'Natur und Wildlife (Serie)'},
+--	{'https://www.welt.de/mediathek/serie/natur-und-wildlife', 'Natur und Wildlife (Serie)'},
 	{'https://www.welt.de/mediathek/dokumentation/natur-und-wildlife', 'Natur und Wildlife'},
 	{'https://www.welt.de/mediathek/dokumentation/space/', 'Space'},
 	{'https://www.welt.de/mediathek/dokumentation/katastrophen/', 'Katastrophen'},
@@ -138,8 +138,10 @@ function fill_playlist(id) --- > begin playlist
 			nameid = v[2]	
 			local data  = getdata( id ,nil)
 			if data then
-				for  item in data:gmatch('>Video</span>.-Topic">(.-href.-title.-)span> </li>')  do
-					local link,title = item:match('<a href="(/mediathek/.-html)".-title="(.-)"') -- default 
+				for  item in data:gmatch('<h4 class(.-href.-title.-)</li><li')  do -- tracking
+--				for  item in data:gmatch('>Video</span>.-Topic">(.-href.-title.-)span> </li>')  do -- tracking
+					local title,link = item:match('Title"><a title="(.-)" class=".-href="(/mediathek/.-html)" data') -- default 
+--					local link,title = item:match('<a href="(/mediathek/.-html)".-title="(.-)"') -- default 
 --					local link,title = item:match('</span>.-<a href="(/mediathek/.-html)".-title="(.-)"') -- only for testing , <a href="/mediathek/
 					seite = 'https://www.welt.de' .. link 
 					if link == nil then
