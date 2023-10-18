@@ -1,7 +1,7 @@
 --[[
-	Sanmänchen-App
-	Vers.: 0.1 from 20.08.2021
-	Copyright (C) 2021, fritz
+	Sandmänchen-App
+	Vers.: 0.2 from 18.10.2023
+	Copyright (C) 2021-2023, fritz
 
 	License: GPL
 
@@ -68,7 +68,7 @@ function conv_str(_string)
 	if _string == nil then return _string end
         _string = string.gsub(_string,'\\','');
         _string = string.gsub(_string,'\\','');
-	_string = string.gsub(_string,'.-rdensprache.-','null');
+--	_string = string.gsub(_string,'.-rdensprache.-','null');
 	_string = string.gsub(_string,'#039;','’');
 	_string = string.gsub(_string,'#039;','’');
 	_string = string.gsub(_string,'u00e4','ä');
@@ -184,7 +184,8 @@ function decodeImage(b64Image)
 end
 
 function fill_playlist()
-	local data = getdata('http://itv.mit-xperts.com/rbbsandmann/dyn/index.php',nil)
+--	local data = getdata('http://itv.mit-xperts.com/rbbsandmann/dyn/index.php',nil)
+	local data = getdata('http://smarttv.rbb-online.de/hbbtv/sandmann/dyn/index.php',nil)
 	if data then
 		for  item in data:gmatch('{(.-)xml')  do
 			local title,url = item:match('"title":"(.-)","img".-"vid":"(.-mp4)"')
