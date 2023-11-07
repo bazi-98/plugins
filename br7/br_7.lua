@@ -1,8 +1,8 @@
 --[[
 	BR Mediathek
-	Vers.: 0.3
+	Vers.: 0.4
 	Copyright
-        (C) 2021-22 bazi98
+        (C) 2021-23 bazi98
 
 	License: 
 
@@ -126,6 +126,13 @@ function conv_str(_string)
 	return _string
 end
 
+function conv_position(_string)
+	if _string == nil then return _string end
+	_string = string.gsub(_string,'BR24.-Uhr',"news");
+	_string = string.gsub(_string,'BR24.-%d%d%:%d%d',"news");
+	return _string
+end
+
 function fill_playlist(id)
 	p = {}
 	for i,v in  pairs(subs) do
@@ -135,8 +142,16 @@ function fill_playlist(id)
 			local data  = getdata('http://hbbtv-mediathek.br.de/programme/' .. id .. 'T05:00:00.000Z',nil)
 			if data then
 				for  item in data:gmatch('{.-video.-}')  do
-					local url, description, title, duration,vid = item:match('/av:(.-)","titletxt":"(.-)",.-"teasertxt":"(.-)".-"techinfo"%:"(.-min)".-"isvid":(.-),') 
+					local url, description1, title1, duration,vid = item:match('/av:(.-)","titletxt":"(.-)",.-"teasertxt":"(.-)".-"techinfo"%:"(.-min)".-"isvid":(.-),') 
                                         url = "http://hbbtv-mediathek.br.de/video/av:" .. url -- e.g -> http://hbbtv-mediathek.br.de/video/av:6213919043ca8800093e78b6
+ 					if title1 == "Die ganze Sendung" or conv_position(description1) == "news" then
+                                                title = description1
+                                                description = title1
+                                         else
+						title = title1
+                                                description = description1
+                                         end    
+
  					if url and (description ~= "Tagesschau") and (vid ~= "false") then
 						add_stream( conv_str(title), url, conv_str(description), duration ) -- default
 --						add_stream( title, url, url, duration ) -- only for testing
