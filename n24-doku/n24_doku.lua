@@ -1,8 +1,8 @@
 --[[
 	N24 DOKU
-	Vers.: 0.3
+	Vers.: 0.4
 	Copyright
-        (C) 2019-2022  bazi98
+        (C) 2019-2024  bazi98
 
         App Description:
         There the player links are respectively read about the recent documentaries of the German Television "N24 DOKU"
@@ -37,12 +37,14 @@ vorgestern = (os.date("%Y-%m-%d", os.time() - 3600*48))
 morgen = (os.date("%Y-%m-%d", os.time() + 3600*24))
 uebermorgen = (os.date("%Y-%m-%d", os.time() + 3600*48))
 
--- Auswahl -- evtl auch https://www.welt.de/onward/most-watched/broadcast/
+-- Auswahl 
+-- e.g. https://www.welt.de/api/epg/doku/2024-01-11
+-- e.g. https://www.welt.de/api/epg/live/2024-01-14
 local subs = {
-	{'https://www.welt.de/live-tv/epg/n24doku/'..vorgestern..'/', 'vorgestern'},
-	{'https://www.welt.de/live-tv/epg/n24doku/'..gestern..'/', 'gestern'},
-	{'https://www.welt.de/live-tv/epg/n24doku/'..heute..'/', 'heute'},
-	{'https://www.welt.de/live-tv/epg/n24doku/'..morgen..'/', 'morgen'}
+	{'https://www.welt.de/api/epg/doku/'..vorgestern..'/', 'vorgestern'},
+	{'https://www.welt.de/api/epg/doku/'..gestern..'/', 'gestern'},
+	{'https://www.welt.de/api/epg/doku/'..heute..'/', 'heute'},
+	{'https://www.welt.de/api/epg/doku/'..morgen..'/', 'morgen'}
 }
 
 --Objekte
@@ -135,10 +137,11 @@ function fill_playlist(id) --- > begin playlist
 			nameid = v[2]	
 			local data  = getdata( id ,nil)
 			if data then
-				for  item in data:gmatch('<a class="o%-link c%-epg%-item(.-" href=.-)<div class="c%-epg%-item__image u%-display%-%-is%-hidden')  do
-					local link,title = item:match('href="(.-html)">(.-)</a>') 
-					seite = 'https://www.welt.de' .. link 
-					epg1 = item:match('c%-epg%-item__text">(.-)</div>')
+				for  item in data:gmatch('{"tit(.-)ml"}')  do
+					local title,link = item:match('le":"(.-)","description":".-"href":"(.-).ht') 
+					seite = 'https://www.welt.de' .. link .. '.html'
+--                                   z.B. https://www.welt.de//mediathek/dokumentation/natur-und-wildlife/sendung238702453/Wildes-Suedamerika-1.html
+					epg1 = item:match('"description":"(.-)",')
 					if seite and title then
 						add_stream( conv_str(title), seite, conv_str(epg1)) -- default
 --						add_stream( conv_str(title), seite, seite) -- only for testing
@@ -221,13 +224,16 @@ function select_playitem()
       end
 
 	local js_data = getdata(url,nil)
-	video_url = js_data:match('<video.-mpegURL.-src.-"(https://weltn24lfthumb.-mp4)"') 
+	video_url = js_data:match('{"src":"(https://.-mp4)",') 
 	if video_url == nil then
-	   video_url = js_data:match('<video.-source.-src.-"(https://weltn24lfthumb.-mp4)"') 
+	   video_url = js_data:match('extension.-src.-"(https://.-mp4)"') 
+--         e.g.  sources":[{"src":"https://vod-file.welt.personalstream.tv/videos/2023/11/06/JprmkkkhfyYU0pp6MGiSlwildessdamerika-pg000htg/pmd/video_3_4800.mp4"
 	end
 	if video_url == nil then
 		print("Video URL not  found")
  		os.execute('msgbox icon=/usr/share/tuxbox/neutrino/icons/info.png title="WELT HD" size=26 timeout=60 popup="Die Sendung ist aus rechtlichen Gründen online nicht verfügbar"');
+	local js_data2 = getdata("https://n24-doku.personalstream.tv/v1/weltde/master.m3u8",nil)
+        video_url = js_data2:match('1280x720.-(https://.-m3u8)"')
 	end
 
 	local epg1 = js_data:match('articleBody".-:.-"<p>(.-)</p>') 
@@ -252,7 +258,7 @@ function select_playitem()
 --[[
 		epg = 'WELT HD\n\nDie ausgewählte Sendung ist aus rechtlichen Gründen nicht oder nicht mehr online verfügbar als Ersatz wird der aktuelle Livestream von Welt HD gezeigt'
 		vPlay:setInfoFunc("epgInfo")
-		vPlay:PlayFile("WELT HD","https://live2weltcms-lh.akamaihd.net/i/Live2WeltCMS_1@444563/index_1_av-p.m3u8"," Livestream von WELT HD");
+		vPlay:PlayFile("N24 Doku HD","https://n24-doku.personalstream.tv/v1/weltde/master.m3u8"," Livestream von N24 Doku HD");
 
 ]]
 	end
