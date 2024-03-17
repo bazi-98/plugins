@@ -1,8 +1,8 @@
 --[[
    LUA-Horoskop-Plugin
-   (c) 2019 by bazi98
+   (c) 2019-2024 by bazi98
    Lizenz: GPL 2
-   Version 0.07
+   Version 0.08
 
    Horoskoptexte by Impulsprojekte UG (https://www.horoskopbox.de)
    decodeImage-Funktion by Alex Kloss (http://lua-users.org/wiki/)
@@ -97,7 +97,10 @@ function conv_str(_string)
         _string = string.gsub(_string,'Beruf</h2>','\nBeruf:\n')
         _string = string.gsub(_string,'Geld%:','Geld:\n')
         _string = string.gsub(_string,'So stehen die Sterne heute für das Sternzeichen','Tageshoroskop für das Sternzeichen ') 
+        _string = string.gsub(_string,'<!','') 
         _string = string.gsub(_string,'<.->','')
+        _string = string.gsub(_string,'-- ',' ')
+        _string = string.gsub(_string,'if(.-;','')
 	return _string
 end
 
@@ -127,7 +130,7 @@ function auswahl(k)
 
 	local data = getdata( baseUrl .. kreis  .. ".html",nil)
 		if data then
-                        local horoskoptext = data:match('<%!%-%- Horoskop heute Text start%-%->(.-)<%!%-%- Horoskop heute Text ende%-%->')
+                        local horoskoptext = data:match('Horoskop heute Text start.-(Tagesform.-)Horoskop heute Text ende')
 			if horoskoptext then
 	                        horoskoptitel = ("Tageshoroskop für das Sternzeichen " .. kreis)
 	                        horoskoptext = conv_str(horoskoptext)
